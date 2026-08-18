@@ -22,6 +22,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAuditLogRouteImport } from './routes/admin.audit-log'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
@@ -95,6 +96,11 @@ const Char91DotwellKnownChar93OauthProtectedResourceRoute =
     path: '/.well-known/oauth-protected-resource',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditLogRoute = AdminAuditLogRouteImport.update({
   id: '/admin/audit-log',
   path: '/admin/audit-log',
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/admin/': typeof AdminIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/admin': typeof AdminIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/admin/': typeof AdminIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/auth/callback'
     | '/product/$slug'
+    | '/admin/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesByTo: FileRoutesByTo
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/auth/callback'
     | '/product/$slug'
+    | '/admin'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   id:
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/auth/callback'
     | '/product/$slug'
+    | '/admin/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
   fileRoutesById: FileRoutesById
@@ -262,6 +274,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditLogRoute: typeof AdminAuditLogRoute
   ProductSlugRoute: typeof ProductSlugRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
@@ -359,6 +372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/audit-log': {
       id: '/admin/audit-log'
       path: '/admin/audit-log'
@@ -424,6 +444,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminAuditLogRoute: AdminAuditLogRoute,
   ProductSlugRoute: ProductSlugRoute,
+  AdminIndexRoute: AdminIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
