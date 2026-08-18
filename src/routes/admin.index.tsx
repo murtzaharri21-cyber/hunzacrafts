@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogIn, LogOut, Package, Plus, ScrollText, Settings, ShieldCheck, Store, Undo2 } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { useAdmin } from "@/lib/admin-context";
-import { isSupabaseConfigured } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabaseConfig } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { AddProductDialog } from "@/components/AddProductDialog";
 
@@ -50,14 +50,19 @@ function AdminDashboard() {
       <section className="container-x mt-10 pb-24">
         {!isSupabaseConfigured && (
           <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-900 dark:text-amber-200">
-            <h3 className="font-semibold text-base mb-1">⚠️ Missing Supabase Configuration on Vercel</h3>
+            <h3 className="font-semibold text-base mb-1">Missing Supabase Publishable Key on Vercel</h3>
             <p className="text-xs text-muted-foreground dark:text-amber-300/80 mb-3">
-              To enable cloud authentication and audit logs on Vercel, please add the following environment variables in your Vercel Project Settings:
+              The Supabase project URL is detected from this repo. Add the remaining browser key in your Vercel Project Settings:
             </p>
             <div className="rounded-xl bg-background/80 p-3 font-mono text-xs text-foreground space-y-1">
-              <div>VITE_SUPABASE_URL</div>
-              <div>VITE_SUPABASE_PUBLISHABLE_KEY</div>
+              {!supabaseConfig.hasUrl && <div>VITE_SUPABASE_URL</div>}
+              {!supabaseConfig.hasPublishableKey && <div>VITE_SUPABASE_PUBLISHABLE_KEY</div>}
             </div>
+            {supabaseConfig.url && (
+              <p className="mt-3 text-xs text-muted-foreground dark:text-amber-300/80">
+                Using Supabase URL: <span className="font-mono">{supabaseConfig.url}</span>
+              </p>
+            )}
           </div>
         )}
 

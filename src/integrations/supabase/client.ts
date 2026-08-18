@@ -26,20 +26,51 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+function readViteEnv(name: string): string | undefined {
+  const value = typeof import.meta !== 'undefined' ? import.meta.env?.[name] : undefined;
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function readProcessEnv(name: string): string | undefined {
+  const value = typeof process !== 'undefined' ? process.env?.[name] : undefined;
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function resolveSupabaseProjectId(): string | undefined {
+  return readViteEnv('VITE_SUPABASE_PROJECT_ID') || readProcessEnv('SUPABASE_PROJECT_ID');
+}
+
+function resolveSupabaseUrl(): string | undefined {
+  const configuredUrl = readViteEnv('VITE_SUPABASE_URL') || readProcessEnv('SUPABASE_URL');
+  if (configuredUrl) return configuredUrl;
+
+  const projectId = resolveSupabaseProjectId();
+  return projectId ? `https://${projectId}.supabase.co` : undefined;
+}
+
+function resolveSupabasePublishableKey(): string | undefined {
+  return readViteEnv('VITE_SUPABASE_PUBLISHABLE_KEY') || readProcessEnv('SUPABASE_PUBLISHABLE_KEY');
+}
+
+const RESOLVED_SUPABASE_URL = resolveSupabaseUrl();
+const RESOLVED_SUPABASE_PUBLISHABLE_KEY = resolveSupabasePublishableKey();
+
+export const supabaseConfig = {
+  url: RESOLVED_SUPABASE_URL,
+  hasUrl: Boolean(RESOLVED_SUPABASE_URL),
+  hasPublishableKey: Boolean(RESOLVED_SUPABASE_PUBLISHABLE_KEY),
+};
 
 export const isSupabaseConfigured = Boolean(
-  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
-  (typeof process !== 'undefined' && process.env?.SUPABASE_URL && process.env?.SUPABASE_PUBLISHABLE_KEY)
+  RESOLVED_SUPABASE_URL && RESOLVED_SUPABASE_PUBLISHABLE_KEY
 );
 
 function createSupabaseClient() {
-  // Use import.meta.env for client-side (Vite build-time replacement)
-  // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) || (typeof process !== 'undefined' && process.env?.SUPABASE_URL) || 'https://placeholder.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) || (typeof process !== 'undefined' && process.env?.SUPABASE_PUBLISHABLE_KEY) || 'placeholder-key';
+  const SUPABASE_URL = RESOLVED_SUPABASE_URL || 'https://placeholder.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = RESOLVED_SUPABASE_PUBLISHABLE_KEY || 'placeholder-key';
 
   if (!isSupabaseConfigured) {
-    console.warn('[Supabase] Missing Supabase environment variable(s) (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY). Please add them to your Vercel Project Settings > Environment Variables.');
+    console.warn('[Supabase] Missing VITE_SUPABASE_PUBLISHABLE_KEY. Please add it to your Vercel Project Settings > Environment Variables.');
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -64,4 +95,3 @@ export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>,
     return Reflect.get(_supabase, prop, receiver);
   },
 });
-
