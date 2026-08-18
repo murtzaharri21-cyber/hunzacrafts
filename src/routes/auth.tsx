@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 
 type Search = { next?: string };
@@ -27,19 +27,23 @@ export const Route = createFileRoute("/auth")({
 
 /** Confirms the signed-in user is an admin; signs them out otherwise. */
 async function ensureAdmin(): Promise<boolean> {
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  if (!user) return false;
-  // Admin roles are assigned directly in the database; never self-claimed.
-  const { data: ok } = await (supabase as any).rpc("has_role", {
-    _user_id: user.id,
-    _role: "admin",
-  });
-  if (ok !== true) {
-    await supabase.auth.signOut();
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data?.user) return false;
+    const user = data.user;
+    // Admin roles are assigned directly in the database; never self-claimed.
+    const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+    if (rpcError || ok !== true) {
+      await supabase.auth.signOut().catch(() => {});
+      return false;
+    }
+    return true;
+  } catch {
     return false;
   }
-  return true;
 }
 
 function AuthPage() {
@@ -52,10 +56,20 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
-      if (await ensureAdmin()) window.location.replace(target);
-    });
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    supabase.auth
+      .getUser()
+      .then(async ({ data }) => {
+        if (!active || !data?.user) return;
+        if (await ensureAdmin()) window.location.replace(target);
+      })
+      .catch((err) => {
+        console.warn("Auth check error:", err);
+      });
+    return () => {
+      active = false;
+    };
   }, [target]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -102,6 +116,17 @@ function AuthPage() {
 
       <section className="container-x mt-10 pb-24">
         <div className="max-w-md rounded-3xl border border-border p-6 md:p-8">
+          {!isSupabaseConfigured && (
+            <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
+              <strong className="block font-medium mb-1">⚙️ Supabase Configuration Required</strong>
+              To enable admin login on Vercel, add these Environment Variables in your Vercel Project Settings:
+              <ul className="mt-2 list-disc list-inside space-y-1 font-mono text-[11px]">
+                <li>VITE_SUPABASE_URL</li>
+                <li>VITE_SUPABASE_PUBLISHABLE_KEY</li>
+              </ul>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={onGoogle}

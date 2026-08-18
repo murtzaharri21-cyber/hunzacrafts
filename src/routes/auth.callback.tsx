@@ -25,21 +25,26 @@ function Callback() {
     let done = false;
 
     const finish = async () => {
-      if (done) return;
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) return;
-      done = true;
-      // Verify admin access (admin roles are assigned server-side only).
-      const { data: ok } = await (supabase as any).rpc("has_role", {
-        _user_id: data.user.id,
-        _role: "admin",
-      });
-      if (ok !== true) {
-        await supabase.auth.signOut();
+      try {
+        if (done) return;
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data?.user) return;
+        done = true;
+        // Verify admin access (admin roles are assigned server-side only).
+        const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+          _user_id: data.user.id,
+          _role: "admin",
+        });
+        if (rpcError || ok !== true) {
+          await supabase.auth.signOut().catch(() => {});
+          navigate({ to: "/auth", search: { next: target } });
+          return;
+        }
+        navigate({ to: target });
+      } catch (err) {
+        console.warn("Callback finish error:", err);
         navigate({ to: "/auth", search: { next: target } });
-        return;
       }
-      navigate({ to: target });
     };
 
     const sub = supabase.auth.onAuthStateChange((event) => {

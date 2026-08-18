@@ -88,28 +88,34 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
 
     let cleanup = () => {};
-    import("@/integrations/supabase/client").then(({ supabase }) => {
-      const resolveRole = async () => {
-        const { data } = await supabase.auth.getUser();
-        const user = data.user;
-        if (!user) {
-          setIsAdmin(false);
-          return;
-        }
-        const { data: ok } = await (supabase as any).rpc("has_role", {
-          _user_id: user.id,
-          _role: "admin",
+    import("@/integrations/supabase/client")
+      .then(({ supabase }) => {
+        const resolveRole = async () => {
+          try {
+            const { data, error } = await supabase.auth.getUser();
+            if (error || !data?.user) {
+              setIsAdmin(false);
+              return;
+            }
+            const user = data.user;
+            const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+              _user_id: user.id,
+              _role: "admin",
+            });
+            setIsAdmin(!rpcError && ok === true);
+          } catch {
+            setIsAdmin(false);
+          }
+        };
+        void resolveRole();
+        const sub = supabase.auth.onAuthStateChange((event) => {
+          if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+            void resolveRole();
+          }
         });
-        setIsAdmin(ok === true);
-      };
-      void resolveRole();
-      const sub = supabase.auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-          void resolveRole();
-        }
-      });
-      cleanup = () => sub.data.subscription.unsubscribe();
-    });
+        cleanup = () => sub.data.subscription.unsubscribe();
+      })
+      .catch(() => {});
     return () => cleanup();
   }, []);
 

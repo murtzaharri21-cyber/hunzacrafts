@@ -136,14 +136,16 @@ function RootComponent() {
   useEffect(() => {
     // Lazy import so Supabase client is only loaded in the browser bundle.
     let cleanup = () => {};
-    import("@/integrations/supabase/client").then(({ supabase }) => {
-      const sub = supabase.auth.onAuthStateChange((event) => {
-        if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-        router.invalidate();
-        if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
-      });
-      cleanup = () => sub.data.subscription.unsubscribe();
-    });
+    import("@/integrations/supabase/client")
+      .then(({ supabase }) => {
+        const sub = supabase.auth.onAuthStateChange((event) => {
+          if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+          router.invalidate();
+          if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+        });
+        cleanup = () => sub.data.subscription.unsubscribe();
+      })
+      .catch(() => {});
     return () => cleanup();
   }, [queryClient, router]);
 

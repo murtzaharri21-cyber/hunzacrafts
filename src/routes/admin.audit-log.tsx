@@ -44,16 +44,21 @@ function AuditLogPage() {
   useEffect(() => {
     if (!isAdmin) return;
     let active = true;
-    import("@/integrations/supabase/client").then(async ({ supabase }) => {
-      const { data, error } = await (supabase as any)
-        .from("product_audit_log")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(200);
-      if (!active) return;
-      if (error) setError(error.message);
-      else setEntries((data ?? []) as AuditEntry[]);
-    });
+    import("@/integrations/supabase/client")
+      .then(async ({ supabase }) => {
+        const { data, error } = await (supabase as any)
+          .from("product_audit_log")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(200);
+        if (!active) return;
+        if (error) setError(error.message);
+        else setEntries((data ?? []) as AuditEntry[]);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : "Failed to load audit log");
+      });
     return () => {
       active = false;
     };
