@@ -93,14 +93,22 @@ function AuthPage() {
 
   async function onGoogle() {
     setError(null);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(target),
-      },
-    });
-    if (error) {
-      setError(error.message);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(target),
+        },
+      });
+      if (error) {
+        if (error.message.includes("missing OAuth secret") || error.message.includes("Unsupported provider")) {
+          setError("Google OAuth is not configured in Supabase. Please configure the Google Provider in Supabase Dashboard or sign in with Email & Password.");
+        } else {
+          setError(error.message);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to initialize Google login.");
     }
   }
 
