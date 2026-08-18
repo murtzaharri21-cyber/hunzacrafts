@@ -80,12 +80,17 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       if (!(await ensureAdmin())) {
-        setError("This account does not have admin access.");
+        setError("This account does not have admin access. Ensure your user ID has the 'admin' role in Supabase.");
         return;
       }
       navigate({ to: target });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      if (msg.toLowerCase().includes("invalid api key")) {
+        setError("Invalid Supabase API Key. Please verify that VITE_SUPABASE_PUBLISHABLE_KEY in your Vercel Project Settings > Environment Variables is your Supabase 'anon' (public) key, then trigger a Redeploy in Vercel.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setBusy(false);
     }
