@@ -24,6 +24,7 @@ so AI agents can browse the catalog securely.
   - Editable homepage hero (text + images) and contact details.
   - Product image uploads (auto-resized to data URLs).
   - Audit log tracking who changed the catalog and when.
+  - Order requests are recorded and visible to admins for full order audit (contact, shipping, itemized images/text).
 - **Cart & Wishlist** persisted in `localStorage`.
 - **MCP server** (`/mcp`) with OAuth 2.1 — tools: `list_categories`, `list_products`,
   `search_products`, `get_product`.
