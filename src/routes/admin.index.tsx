@@ -147,6 +147,19 @@ function AdminDashboard() {
                     Review chronological record of all product additions, removals, and price modifications.
                   </p>
                 </Link>
+
+                <Link
+                  to="/admin/orders"
+                  className="flex flex-col items-start rounded-2xl border border-border bg-card p-6 text-left transition-all hover:border-foreground/40 hover:shadow-sm"
+                >
+                  <div className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
+                    <Package className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-4 font-display text-lg">Order Requests</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    View customer orders, see full contact/shipping details, and itemize images and text for each order.
+                  </p>
+                </Link>
               </div>
             </div>
 
