@@ -45,29 +45,47 @@ function OrdersPage() {
   const [orders, setOrders] = useState<OrderRequest[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [total, setTotal] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) return;
     let active = true;
-    import("@/integrations/supabase/client")
-      .then(async ({ supabase }) => {
-        const { data, error } = await (supabase as any)
-          .from("order_requests")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(200);
+    const fetchOrders = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const start = (page - 1) * pageSize;
+        const end = start + pageSize - 1;
+        let query = (supabase as any).from("order_requests").select("*", { count: 'exact' }).order("created_at", { ascending: false });
+        if (search && search.trim().length > 0) {
+          const q = `%${search.trim()}%`;
+          query = query.or(`order_id.ilike.${q},user_email.ilike.${q}`);
+        }
+        const { data, count, error } = await query.range(start, end);
         if (!active) return;
-        if (error) setError(error.message);
-        else setOrders((data ?? []) as OrderRequest[]);
-      })
-      .catch((err) => {
+        if (error) {
+          setError(error.message);
+        } else {
+          setOrders((data ?? []) as OrderRequest[]);
+          setTotal(count ?? null);
+        }
+      } catch (err) {
         if (!active) return;
         setError(err instanceof Error ? err.message : String(err));
-      });
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    void fetchOrders();
     return () => {
       active = false;
     };
-  }, [isAdmin]);
+  }, [isAdmin, page, pageSize, search]);
 
   function toggle(id: string) {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -95,6 +113,24 @@ function OrdersPage() {
           <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">No orders recorded yet.</div>
         ) : (
           <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3 p-4">
+              <div className="flex items-center gap-2">
+                <input
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  placeholder="Search by order id or email"
+                  className="w-64 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                />
+                <select value={pageSize} onChange={(e) => { setPage(1); setPageSize(Number(e.target.value)); }} className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
+                  {[10,20,50,100].map((s) => <option key={s} value={s}>{s} / page</option>)}
+                </select>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <button disabled={page <= 1 || loading} onClick={() => setPage((p) => Math.max(1, p - 1))} className="rounded-full border border-border px-3 py-1">Prev</button>
+                <div>Page {page}{total ? ` of ${Math.ceil(total / pageSize)}` : ''}</div>
+                <button disabled={(total !== null && page >= Math.ceil(total / pageSize)) || loading} onClick={() => setPage((p) => p + 1)} className="rounded-full border border-border px-3 py-1">Next</button>
+              </div>
+            </div>
             <div className="overflow-hidden rounded-2xl border border-border">
               <table className="w-full text-left text-sm">
                 <thead className="bg-muted/60 text-xs uppercase tracking-wider text-muted-foreground">
