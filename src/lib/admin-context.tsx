@@ -89,47 +89,34 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     let cleanup = () => {};
 
-    // Dev-only override: when running locally (MODE !== 'production') or when
-    // VITE_DEV_FORCE_ADMIN is set to "true", force isAdmin = true so devs can
-    // preview admin pages without needing the DB role. This is safe to keep
-    // locally but should not be used in production.
-    const _importMeta = (typeof import.meta !== 'undefined' ? (import.meta as any) : undefined);
-    const forceAdmin = !!(
-      _importMeta?.env?.VITE_DEV_FORCE_ADMIN === 'true' || _importMeta?.env?.MODE !== 'production'
-    );
-
-    if (forceAdmin) {
-      setIsAdmin(true);
-    } else {
-      import("@/integrations/supabase/client")
-        .then(({ supabase }) => {
-          const resolveRole = async () => {
-            try {
-              const { data, error } = await supabase.auth.getUser();
-              if (error || !data?.user) {
-                setIsAdmin(false);
-                return;
-              }
-              const user = data.user;
-              const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
-                _user_id: user.id,
-                _role: "admin",
-              });
-              setIsAdmin(!rpcError && ok === true);
-            } catch {
+    import("@/integrations/supabase/client")
+      .then(({ supabase }) => {
+        const resolveRole = async () => {
+          try {
+            const { data, error } = await supabase.auth.getUser();
+            if (error || !data?.user) {
               setIsAdmin(false);
+              return;
             }
-          };
-          void resolveRole();
-          const sub = supabase.auth.onAuthStateChange((event) => {
-            if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-              void resolveRole();
-            }
-          });
-          cleanup = () => sub.data.subscription.unsubscribe();
-        })
-        .catch(() => {});
-    }
+            const user = data.user;
+            const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+              _user_id: user.id,
+              _role: "admin",
+            });
+            setIsAdmin(!rpcError && ok === true);
+          } catch {
+            setIsAdmin(false);
+          }
+        };
+        void resolveRole();
+        const sub = supabase.auth.onAuthStateChange((event) => {
+          if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+            void resolveRole();
+          }
+        });
+        cleanup = () => sub.data.subscription.unsubscribe();
+      })
+      .catch(() => {});
 
     return () => cleanup();
   }, []);
