@@ -62,12 +62,30 @@ function CheckoutPage() {
         shipping_cost: shipping,
         discount: applied,
         total,
+        status: "pending",
+        admin_notes: "",
         created_at: new Date().toISOString(),
       } as any;
 
       // Attempt to insert into a dedicated order_requests table. If the table doesn't exist,
       // this will fail gracefully and we still proceed with local navigation.
       await (supabase as any).from("order_requests").insert([payload]);
+
+      try {
+        localStorage.setItem("hunza:last-order", JSON.stringify({
+          order_id: orderId,
+          user_email: user?.email ?? email ?? null,
+          total,
+          status: "pending",
+          created_at: payload.created_at,
+          items,
+          contact: payload.contact,
+          shipping: payload.shipping,
+          payment_method: payment,
+        }));
+      } catch {
+        // Ignore local storage issues; the checkout session should still proceed.
+      }
     } catch (err) {
       // Log to console; don't block checkout if the audit insert fails.
       console.warn("Failed to record order audit:", err);
