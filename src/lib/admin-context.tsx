@@ -59,6 +59,38 @@ const Ctx = createContext<AdminCtx | null>(null);
 const KEY = "hunza:hidden-products";
 const CUSTOM_KEY = "hunza:custom-products";
 const EDITS_KEY = "hunza:product-edits";
+const REMOTE_KEYS = {
+  hidden: "admin-hidden-products",
+  custom: "admin-custom-products",
+  edits: "admin-product-edits",
+};
+
+async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", remoteKey)
+      .maybeSingle();
+    if (error) throw error;
+    return (data?.value as T) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function saveRemoteAdminState<T>(remoteKey: string, value: T) {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: remoteKey, value }, { onConflict: "key" });
+    if (error) throw error;
+  } catch {
+    // Remote persistence is best-effort so the storefront keeps working without a database sync.
+  }
+}
 
 function slugify(name: string) {
   return (
@@ -77,6 +109,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    let active = true;
+
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setHiddenIds(JSON.parse(raw));
@@ -85,7 +119,20 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       const rawEdits = localStorage.getItem(EDITS_KEY);
       if (rawEdits) setEdits(JSON.parse(rawEdits));
     } catch {}
-    setHydrated(true);
+
+    void (async () => {
+      const [hidden, custom, editsFromRemote] = await Promise.all([
+        loadRemoteAdminState<string[]>(REMOTE_KEYS.hidden),
+        loadRemoteAdminState<Product[]>(REMOTE_KEYS.custom),
+        loadRemoteAdminState<Record<string, ProductEdit>>(REMOTE_KEYS.edits),
+      ]);
+
+      if (!active) return;
+      if (hidden) setHiddenIds(hidden);
+      if (custom) setCustomProducts(custom);
+      if (editsFromRemote) setEdits(editsFromRemote);
+      setHydrated(true);
+    })();
 
     let cleanup = () => {};
 
@@ -118,22 +165,28 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {});
 
-    return () => cleanup();
+    return () => {
+      active = false;
+      cleanup();
+    };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(KEY, JSON.stringify(hiddenIds));
+    void saveRemoteAdminState(REMOTE_KEYS.hidden, hiddenIds);
   }, [hiddenIds, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(CUSTOM_KEY, JSON.stringify(customProducts));
+    void saveRemoteAdminState(REMOTE_KEYS.custom, customProducts);
   }, [customProducts, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(EDITS_KEY, JSON.stringify(edits));
+    void saveRemoteAdminState(REMOTE_KEYS.edits, edits);
   }, [edits, hydrated]);
 
   const value = useMemo<AdminCtx>(() => {
