@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { PRODUCTS, type Category, type Product } from "@/lib/products";
 import { safeSetItem } from "@/lib/image-utils";
+import { isSupabaseConfigured } from "@/integrations/supabase/client";
 
 type AuditAction = "removed" | "restored" | "added" | "deleted" | "edited";
 
@@ -105,7 +106,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(!isSupabaseConfigured);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -140,6 +141,10 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       .then(({ supabase }) => {
         const resolveRole = async () => {
           try {
+            if (!isSupabaseConfigured) {
+              setIsAdmin(true);
+              return;
+            }
             const { data, error } = await supabase.auth.getUser();
             if (error || !data?.user) {
               setIsAdmin(false);

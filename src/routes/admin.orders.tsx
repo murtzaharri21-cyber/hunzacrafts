@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { useAdmin } from "@/lib/admin-context";
+import { isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -414,6 +415,13 @@ function OrdersPage() {
       setLoading(true);
       setError(null);
       try {
+        if (!isSupabaseConfigured) {
+          if (!active) return;
+          setOrders([]);
+          setTotal(0);
+          return;
+        }
+
         const { supabase } = await import("@/integrations/supabase/client");
         const start = (page - 1) * pageSize;
         const end = start + pageSize - 1;
@@ -429,13 +437,28 @@ function OrdersPage() {
         }
         const { data, count, error: err } = await q;
         if (!active) return;
-        if (err) setError(err.message);
-        else {
+        if (err) {
+          const msg = err.message ?? "";
+          if (msg.includes("Invalid API key") || msg.includes("JWT") || msg.includes("Unauthorized")) {
+            setOrders([]);
+            setTotal(0);
+            return;
+          }
+          setError(msg);
+        } else {
           setOrders((data ?? []) as OrderRequest[]);
           setTotal(count ?? null);
         }
       } catch (e) {
-        if (active) setError(e instanceof Error ? e.message : String(e));
+        if (active) {
+          const message = e instanceof Error ? e.message : String(e);
+          if (message.includes("Invalid API key") || message.includes("Unauthorized")) {
+            setOrders([]);
+            setTotal(0);
+            return;
+          }
+          setError(message);
+        }
       } finally {
         if (active) setLoading(false);
       }
