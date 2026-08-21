@@ -112,7 +112,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
-  const [isAdmin, setIsAdmin] = useState(() => !isSupabaseConfigured || isLocalAdminHost());
+  // Default to not-admin. Admin access must be granted via Supabase role checks.
+  const [isAdmin, setIsAdmin] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -147,8 +148,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       .then(({ supabase }) => {
         const resolveRole = async () => {
           try {
-            if (!isSupabaseConfigured || isLocalAdminHost()) {
-              setIsAdmin(true);
+            // If Supabase is not configured, do not assume admin privileges.
+            if (!isSupabaseConfigured) {
+              setIsAdmin(false);
               return;
             }
             const { data, error } = await supabase.auth.getUser();
