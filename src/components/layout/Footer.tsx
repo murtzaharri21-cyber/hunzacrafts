@@ -80,11 +80,9 @@ export function Footer() {
           <div>© {new Date().getFullYear()} Hunza & Co. All rights reserved.</div>
           <div className="flex items-center gap-4">
             <span>Handcrafted with care in the Karakoram.</span>
-            {import.meta.env.VITE_ADMIN_URL ? (
-              <a href={import.meta.env.VITE_ADMIN_URL} target="_blank" rel="nofollow noopener noreferrer" className="underline hover:text-foreground">
-                Admin
-              </a>
-            ) : null}
+            <Link to="/auth" className="underline hover:text-foreground">
+              Admin
+            </Link>
           </div>
         </div>
       </div>

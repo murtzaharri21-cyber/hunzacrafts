@@ -51,31 +51,6 @@ function AuthPage() {
   const navigate = useNavigate();
   const target = safeNext(next);
 
-  // Prevent admin sign-in from the main site: if the next target is an admin path, redirect
-  // to the separate admin application (if configured) or show an explanatory message.
-  if (typeof window !== "undefined" && target.startsWith("/admin")) {
-    const adminUrl = import.meta.env.VITE_ADMIN_URL || null;
-    if (adminUrl) {
-      const remainder = target.replace(/^\/admin/, "") || "/";
-      const dest = adminUrl.replace(/\/$/, "") + remainder + window.location.search;
-      window.location.replace(dest);
-      return null as any;
-    }
-    // If no admin app configured, render a small explanatory page instead of sign-in UI.
-    return (
-      <SiteLayout>
-        <section className="container-x pt-12 md:pt-16">
-          <h1 className="font-display text-4xl md:text-5xl">Admin sign in (disabled)</h1>
-          <p className="mt-3 max-w-lg text-muted-foreground">
-            Admin sign-in is not available from this storefront. Administrators must use the
-            dedicated admin application to sign in. If you're running locally, the admin app commonly
-            runs at <span className="font-mono">http://localhost:5173</span>.
-          </p>
-        </section>
-      </SiteLayout>
-    );
-  }
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
