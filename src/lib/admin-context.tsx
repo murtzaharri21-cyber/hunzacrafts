@@ -116,9 +116,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-
+  const applyStoredState = () => {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setHiddenIds(JSON.parse(raw));
@@ -127,6 +125,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       const rawEdits = localStorage.getItem(EDITS_KEY);
       if (rawEdits) setEdits(JSON.parse(rawEdits));
     } catch {}
+  };
+
+  useEffect(() => {
+    let active = true;
+
+    applyStoredState();
 
     void (async () => {
       const [hidden, custom, editsFromRemote] = await Promise.all([
@@ -178,9 +182,17 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {});
 
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === KEY || event.key === CUSTOM_KEY || event.key === EDITS_KEY) {
+        applyStoredState();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
     return () => {
       active = false;
       cleanup();
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 

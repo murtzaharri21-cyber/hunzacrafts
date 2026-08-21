@@ -116,26 +116,29 @@ function Home() {
           </Link>
         </div>
         <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-          {CATEGORIES.slice(0, 4).map((c) => (
-            <Link
-              key={c.value}
-              to="/shop"
-              search={{ category: c.value }}
-              className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
-            >
-              <img
-                src={PRODUCTS.find((p) => p.category === c.value)?.images[0] ?? heroImg}
-                alt={c.label}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-              <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-white">
-                <span className="font-display text-lg md:text-xl">{c.label}</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </div>
-            </Link>
-          ))}
+          {CATEGORIES.slice(0, 4).map((c) => {
+            const categoryImage = allProducts.find((p) => p.category === c.value)?.images[0] ?? heroImg;
+            return (
+              <Link
+                key={c.value}
+                to="/shop"
+                search={{ category: c.value }}
+                className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted"
+              >
+                <img
+                  src={categoryImage}
+                  alt={c.label}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                <div className="absolute inset-x-4 bottom-4 flex items-center justify-between text-white">
+                  <span className="font-display text-lg md:text-xl">{c.label}</span>
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
