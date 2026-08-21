@@ -60,7 +60,6 @@ const Ctx = createContext<AdminCtx | null>(null);
 const KEY = "hunza:hidden-products";
 const CUSTOM_KEY = "hunza:custom-products";
 const EDITS_KEY = "hunza:product-edits";
-const LOCAL_ADMIN_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 const REMOTE_KEYS = {
   hidden: "admin-hidden-products",
   custom: "admin-custom-products",
@@ -94,11 +93,6 @@ async function saveRemoteAdminState<T>(remoteKey: string, value: T) {
   }
 }
 
-function isLocalAdminHost() {
-  if (typeof window === "undefined") return false;
-  return LOCAL_ADMIN_HOSTS.has(window.location.hostname);
-}
-
 function slugify(name: string) {
   return (
     name
@@ -112,7 +106,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
-  const [isAdmin, setIsAdmin] = useState(() => !isSupabaseConfigured || isLocalAdminHost());
+  const [isAdmin, setIsAdmin] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -147,8 +141,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       .then(({ supabase }) => {
         const resolveRole = async () => {
           try {
-            if (!isSupabaseConfigured || isLocalAdminHost()) {
-              setIsAdmin(true);
+            if (!isSupabaseConfigured) {
+              setIsAdmin(false);
               return;
             }
             const { data, error } = await supabase.auth.getUser();
