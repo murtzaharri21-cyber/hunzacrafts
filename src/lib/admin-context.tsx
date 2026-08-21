@@ -214,6 +214,15 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     void saveRemoteAdminState(REMOTE_KEYS.edits, edits);
   }, [edits, hydrated]);
 
+  const persistCatalogState = (nextHiddenIds: string[], nextCustomProducts: Product[], nextEdits: Record<string, ProductEdit>) => {
+    safeSetItem(KEY, JSON.stringify(nextHiddenIds));
+    safeSetItem(CUSTOM_KEY, JSON.stringify(nextCustomProducts));
+    safeSetItem(EDITS_KEY, JSON.stringify(nextEdits));
+    void saveRemoteAdminState(REMOTE_KEYS.hidden, nextHiddenIds);
+    void saveRemoteAdminState(REMOTE_KEYS.custom, nextCustomProducts);
+    void saveRemoteAdminState(REMOTE_KEYS.edits, nextEdits);
+  };
+
   const value = useMemo<AdminCtx>(() => {
     const merge = (p: Product): Product => {
       const e = edits[p.id];
@@ -234,21 +243,28 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       hide: (id) => {
         if (hiddenIds.includes(id)) return;
         void recordAudit(id, "removed");
-        setHiddenIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+        const next = [...hiddenIds, id];
+        setHiddenIds(next);
+        persistCatalogState(next, customProducts, edits);
       },
       show: (id) => {
         if (!hiddenIds.includes(id)) return;
         void recordAudit(id, "restored");
-        setHiddenIds((prev) => prev.filter((x) => x !== id));
+        const next = hiddenIds.filter((x) => x !== id);
+        setHiddenIds(next);
+        persistCatalogState(next, customProducts, edits);
       },
       toggle: (id) => {
         const wasHidden = hiddenIds.includes(id);
         void recordAudit(id, wasHidden ? "restored" : "removed");
-        setHiddenIds((prev) =>
-          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-        );
+        const next = wasHidden ? hiddenIds.filter((x) => x !== id) : [...hiddenIds, id];
+        setHiddenIds(next);
+        persistCatalogState(next, customProducts, edits);
       },
-      clear: () => setHiddenIds([]),
+      clear: () => {
+        setHiddenIds([]);
+        persistCatalogState([], customProducts, edits);
+      },
       addProduct: (input) => {
         const id = `custom-${Date.now().toString(36)}`;
         const base = slugify(input.name);
@@ -272,7 +288,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           isNew: true,
           images: input.images.length ? input.images : ["/placeholder.svg"],
         };
-        setCustomProducts((prev) => [product, ...prev]);
+        const nextCustom = [product, ...customProducts];
+        setCustomProducts(nextCustom);
+        persistCatalogState(hiddenIds, nextCustom, edits);
         void recordAudit(id, "added", product.name);
         return product;
       },
@@ -280,12 +298,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         const product = customProducts.find((p) => p.id === id);
         if (!product) return;
         void recordAudit(id, "deleted", product.name);
-        setCustomProducts((prev) => prev.filter((p) => p.id !== id));
-        setEdits((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
+        const nextCustom = customProducts.filter((p) => p.id !== id);
+        const nextEdits = { ...edits };
+        delete nextEdits[id];
+        setCustomProducts(nextCustom);
+        setEdits(nextEdits);
+        persistCatalogState(hiddenIds, nextCustom, nextEdits);
       },
       updateProduct: (id, patch) => {
         const current = allProducts.find((p) => p.id === id);
@@ -304,16 +322,17 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           ...(patch.images !== undefined && patch.images.length ? { images: patch.images } : {}),
           salePrice: patch.salePrice ?? null,
         };
+        const nextEdits = { ...edits, [id]: next };
         void recordAudit(id, "edited", patch.name ?? current.name);
-        setEdits((prev) => ({ ...prev, [id]: next }));
+        setEdits(nextEdits);
+        persistCatalogState(hiddenIds, customProducts, nextEdits);
       },
       resetProduct: (id) => {
         if (!edits[id]) return;
-        setEdits((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
+        const nextEdits = { ...edits };
+        delete nextEdits[id];
+        setEdits(nextEdits);
+        persistCatalogState(hiddenIds, customProducts, nextEdits);
       },
     };
   }, [isAdmin, hiddenIds, customProducts, edits]);
