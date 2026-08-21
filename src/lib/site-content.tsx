@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { safeSetItem } from "@/lib/image-utils";
 import defaultHero from "@/assets/hero-hunza.jpg";
 
 export type SiteContent = {
@@ -38,7 +37,6 @@ type Ctx = {
 };
 
 const SiteContentCtx = createContext<Ctx | null>(null);
-const KEY = "hunza:site-content";
 const REMOTE_KEY = "site-content";
 
 async function loadRemoteSiteContent(): Promise<Partial<SiteContent> | null> {
@@ -74,30 +72,50 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    let channel: any;
+    let removeChannel = () => {};
 
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setContent({ ...DEFAULT_CONTENT, ...JSON.parse(raw) });
-    } catch {}
-
-    void (async () => {
+    const refreshFromSupabase = async () => {
       const remote = await loadRemoteSiteContent();
-      if (!active || !remote) {
-        if (active) setHydrated(true);
-        return;
-      }
-      setContent({ ...DEFAULT_CONTENT, ...remote });
-      if (active) setHydrated(true);
-    })();
+      if (!active) return;
+      if (remote) setContent({ ...DEFAULT_CONTENT, ...remote });
+      setHydrated(true);
+    };
+
+    void refreshFromSupabase();
+
+    import("@/integrations/supabase/client")
+      .then(({ supabase }) => {
+        channel = supabase
+          .channel("site-content-sync")
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "site_settings",
+              filter: `key=eq.${REMOTE_KEY}`,
+            },
+            () => {
+              void refreshFromSupabase();
+            },
+          )
+          .subscribe();
+
+        removeChannel = () => {
+          supabase.removeChannel(channel);
+        };
+      })
+      .catch(() => {});
 
     return () => {
       active = false;
+      removeChannel();
     };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    safeSetItem(KEY, JSON.stringify(content));
     void saveRemoteSiteContent(content);
   }, [content, hydrated]);
 

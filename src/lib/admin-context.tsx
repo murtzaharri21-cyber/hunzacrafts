@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { PRODUCTS, type Category, type Product } from "@/lib/products";
-import { safeSetItem } from "@/lib/image-utils";
 import { isSupabaseConfigured } from "@/integrations/supabase/client";
 
 type AuditAction = "removed" | "restored" | "added" | "deleted" | "edited";
@@ -57,10 +56,6 @@ type AdminCtx = {
 };
 
 const Ctx = createContext<AdminCtx | null>(null);
-const KEY = "hunza:hidden-products";
-const CUSTOM_KEY = "hunza:custom-products";
-const EDITS_KEY = "hunza:product-edits";
-const LOCAL_ADMIN_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 const REMOTE_KEYS = {
   hidden: "admin-hidden-products",
   custom: "admin-custom-products",
@@ -94,11 +89,6 @@ async function saveRemoteAdminState<T>(remoteKey: string, value: T) {
   }
 }
 
-function isLocalAdminHost() {
-  if (typeof window === "undefined") return false;
-  return LOCAL_ADMIN_HOSTS.has(window.location.hostname);
-}
-
 function slugify(name: string) {
   return (
     name
@@ -116,23 +106,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  const applyStoredState = () => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setHiddenIds(JSON.parse(raw));
-      const rawCustom = localStorage.getItem(CUSTOM_KEY);
-      if (rawCustom) setCustomProducts(JSON.parse(rawCustom));
-      const rawEdits = localStorage.getItem(EDITS_KEY);
-      if (rawEdits) setEdits(JSON.parse(rawEdits));
-    } catch {}
-  };
-
   useEffect(() => {
     let active = true;
+    let cleanup = () => {};
 
-    applyStoredState();
-
-    void (async () => {
+    const refreshFromSupabase = async () => {
       const [hidden, custom, editsFromRemote] = await Promise.all([
         loadRemoteAdminState<string[]>(REMOTE_KEYS.hidden),
         loadRemoteAdminState<Product[]>(REMOTE_KEYS.custom),
@@ -144,15 +122,14 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       if (custom) setCustomProducts(custom);
       if (editsFromRemote) setEdits(editsFromRemote);
       setHydrated(true);
-    })();
+    };
 
-    let cleanup = () => {};
+    void refreshFromSupabase();
 
     import("@/integrations/supabase/client")
       .then(({ supabase }) => {
         const resolveRole = async () => {
           try {
-            // If Supabase is not configured, do not assume admin privileges.
             if (!isSupabaseConfigured) {
               setIsAdmin(false);
               return;
@@ -172,52 +149,61 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             setIsAdmin(false);
           }
         };
+
         void resolveRole();
         const sub = supabase.auth.onAuthStateChange((event) => {
           if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
             void resolveRole();
           }
         });
-        cleanup = () => sub.data.subscription.unsubscribe();
+
+        const channel = supabase
+          .channel("admin-product-sync")
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "site_settings",
+              filter: `key=in.(${Object.values(REMOTE_KEYS)
+                .map((key) => `'${key}'`)
+                .join(",")})`,
+            },
+            () => {
+              void refreshFromSupabase();
+            },
+          )
+          .subscribe();
+
+        cleanup = () => {
+          sub.data.subscription.unsubscribe();
+          supabase.removeChannel(channel);
+        };
       })
       .catch(() => {});
-
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key === KEY || event.key === CUSTOM_KEY || event.key === EDITS_KEY) {
-        applyStoredState();
-      }
-    };
-    window.addEventListener("storage", handleStorage);
 
     return () => {
       active = false;
       cleanup();
-      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    safeSetItem(KEY, JSON.stringify(hiddenIds));
     void saveRemoteAdminState(REMOTE_KEYS.hidden, hiddenIds);
   }, [hiddenIds, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    safeSetItem(CUSTOM_KEY, JSON.stringify(customProducts));
     void saveRemoteAdminState(REMOTE_KEYS.custom, customProducts);
   }, [customProducts, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    safeSetItem(EDITS_KEY, JSON.stringify(edits));
     void saveRemoteAdminState(REMOTE_KEYS.edits, edits);
   }, [edits, hydrated]);
 
   const persistCatalogState = (nextHiddenIds: string[], nextCustomProducts: Product[], nextEdits: Record<string, ProductEdit>) => {
-    safeSetItem(KEY, JSON.stringify(nextHiddenIds));
-    safeSetItem(CUSTOM_KEY, JSON.stringify(nextCustomProducts));
-    safeSetItem(EDITS_KEY, JSON.stringify(nextEdits));
     void saveRemoteAdminState(REMOTE_KEYS.hidden, nextHiddenIds);
     void saveRemoteAdminState(REMOTE_KEYS.custom, nextCustomProducts);
     void saveRemoteAdminState(REMOTE_KEYS.edits, nextEdits);
