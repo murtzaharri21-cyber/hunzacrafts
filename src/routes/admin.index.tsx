@@ -50,27 +50,27 @@ function AdminDashboard() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <div className="rounded-3xl border border-border p-6">
+            <Link to="/admin" className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40">
               <div className="flex items-center gap-3">
                 <Package className="h-5 w-5" />
                 <h3 className="font-medium">Catalog</h3>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">Review products, hide items, and edit catalog details.</p>
-            </div>
-            <div className="rounded-3xl border border-border p-6">
+            </Link>
+            <Link to="/admin/audit-log" className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40">
               <div className="flex items-center gap-3">
                 <ScrollText className="h-5 w-5" />
                 <h3 className="font-medium">Audit log</h3>
               </div>
               <p className="mt-3 text-sm text-muted-foreground">Track catalog changes and restore items when needed.</p>
-            </div>
-            <div className="rounded-3xl border border-border p-6">
+            </Link>
+            <Link to="/admin/orders" className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40">
               <div className="flex items-center gap-3">
                 <Store className="h-5 w-5" />
-                <h3 className="font-medium">Orders</h3>
+                <h3 className="font-medium">Order tracking</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">Monitor customer orders from the order tracking dashboard.</p>
-            </div>
+              <p className="mt-3 text-sm text-muted-foreground">Monitor customer orders and update fulfillment status from a dedicated admin-only area.</p>
+            </Link>
           </div>
         )}
       </section>
