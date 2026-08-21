@@ -396,31 +396,8 @@ function OrderDetailSheet({
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 function OrdersPage() {
-  // Redirect to separate admin app if configured
-  if (typeof window !== "undefined") {
-    const adminUrl = import.meta.env.VITE_ADMIN_URL || null;
-    if (adminUrl) {
-      const remainder = window.location.pathname.replace(/^\/admin/, "") || "/";
-      const target = adminUrl.replace(/\/$/, "") + remainder + window.location.search;
-      window.location.replace(target);
-      return null as any;
-    }
-  }
-
   const { isAdmin } = useAdmin();
   const [orders, setOrders] = useState<OrderRequest[]>([]);
-
-  // Administration is separated — display an explanatory page instead of the orders UI.
-  return (
-    <SiteLayout>
-      <section className="container-x pt-12 md:pt-16">
-        <div className="text-xs uppercase tracking-widest text-muted-foreground">Admin</div>
-        <h1 className="mt-2 font-display text-4xl md:text-5xl">Order Requests</h1>
-        <p className="mt-3 max-w-xl text-muted-foreground">Order management is available only in the separate admin application. Users cannot sign into admin from this site.</p>
-        <p className="mt-4 text-xs text-muted-foreground">Administrators: use the dedicated admin app (commonly at <span className="font-mono">http://localhost:5173</span> when running locally).</p>
-      </section>
-    </SiteLayout>
-  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [total, setTotal] = useState<number | null>(null);
