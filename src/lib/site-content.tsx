@@ -39,22 +39,66 @@ type Ctx = {
 
 const SiteContentCtx = createContext<Ctx | null>(null);
 const KEY = "hunza:site-content";
+const REMOTE_KEY = "site-content";
+
+async function loadRemoteSiteContent(): Promise<Partial<SiteContent> | null> {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", REMOTE_KEY)
+      .maybeSingle();
+    if (error) throw error;
+    return (data?.value as Partial<SiteContent>) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function saveRemoteSiteContent(next: SiteContent) {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: REMOTE_KEY, value: next }, { onConflict: "key" });
+    if (error) throw error;
+  } catch {
+    // Ignore remote-sync errors so the storefront still works without a database connection.
+  }
+}
 
 export function SiteContentProvider({ children }: { children: ReactNode }) {
   const [content, setContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    let active = true;
+
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setContent({ ...DEFAULT_CONTENT, ...JSON.parse(raw) });
     } catch {}
-    setHydrated(true);
+
+    void (async () => {
+      const remote = await loadRemoteSiteContent();
+      if (!active || !remote) {
+        if (active) setHydrated(true);
+        return;
+      }
+      setContent({ ...DEFAULT_CONTENT, ...remote });
+      if (active) setHydrated(true);
+    })();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(KEY, JSON.stringify(content));
+    void saveRemoteSiteContent(content);
   }, [content, hydrated]);
 
   const value = useMemo<Ctx>(

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { PRODUCTS, type Category, type Product } from "@/lib/products";
 import { safeSetItem } from "@/lib/image-utils";
+import { isSupabaseConfigured } from "@/integrations/supabase/client";
 
 type AuditAction = "removed" | "restored" | "added" | "deleted" | "edited";
 
@@ -59,6 +60,44 @@ const Ctx = createContext<AdminCtx | null>(null);
 const KEY = "hunza:hidden-products";
 const CUSTOM_KEY = "hunza:custom-products";
 const EDITS_KEY = "hunza:product-edits";
+const LOCAL_ADMIN_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
+const REMOTE_KEYS = {
+  hidden: "admin-hidden-products",
+  custom: "admin-custom-products",
+  edits: "admin-product-edits",
+};
+
+async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", remoteKey)
+      .maybeSingle();
+    if (error) throw error;
+    return (data?.value as T) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+async function saveRemoteAdminState<T>(remoteKey: string, value: T) {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: remoteKey, value }, { onConflict: "key" });
+    if (error) throw error;
+  } catch {
+    // Remote persistence is best-effort so the storefront keeps working without a database sync.
+  }
+}
+
+function isLocalAdminHost() {
+  if (typeof window === "undefined") return false;
+  return LOCAL_ADMIN_HOSTS.has(window.location.hostname);
+}
 
 function slugify(name: string) {
   return (
@@ -73,10 +112,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
+  // Default to not-admin. Admin access must be granted via Supabase role checks.
   const [isAdmin, setIsAdmin] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => {
+  const applyStoredState = () => {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setHiddenIds(JSON.parse(raw));
@@ -85,13 +125,38 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       const rawEdits = localStorage.getItem(EDITS_KEY);
       if (rawEdits) setEdits(JSON.parse(rawEdits));
     } catch {}
-    setHydrated(true);
+  };
+
+  useEffect(() => {
+    let active = true;
+
+    applyStoredState();
+
+    void (async () => {
+      const [hidden, custom, editsFromRemote] = await Promise.all([
+        loadRemoteAdminState<string[]>(REMOTE_KEYS.hidden),
+        loadRemoteAdminState<Product[]>(REMOTE_KEYS.custom),
+        loadRemoteAdminState<Record<string, ProductEdit>>(REMOTE_KEYS.edits),
+      ]);
+
+      if (!active) return;
+      if (hidden) setHiddenIds(hidden);
+      if (custom) setCustomProducts(custom);
+      if (editsFromRemote) setEdits(editsFromRemote);
+      setHydrated(true);
+    })();
 
     let cleanup = () => {};
+
     import("@/integrations/supabase/client")
       .then(({ supabase }) => {
         const resolveRole = async () => {
           try {
+            // If Supabase is not configured, do not assume admin privileges.
+            if (!isSupabaseConfigured) {
+              setIsAdmin(false);
+              return;
+            }
             const { data, error } = await supabase.auth.getUser();
             if (error || !data?.user) {
               setIsAdmin(false);
@@ -116,23 +181,47 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         cleanup = () => sub.data.subscription.unsubscribe();
       })
       .catch(() => {});
-    return () => cleanup();
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === KEY || event.key === CUSTOM_KEY || event.key === EDITS_KEY) {
+        applyStoredState();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      active = false;
+      cleanup();
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(KEY, JSON.stringify(hiddenIds));
+    void saveRemoteAdminState(REMOTE_KEYS.hidden, hiddenIds);
   }, [hiddenIds, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(CUSTOM_KEY, JSON.stringify(customProducts));
+    void saveRemoteAdminState(REMOTE_KEYS.custom, customProducts);
   }, [customProducts, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
     safeSetItem(EDITS_KEY, JSON.stringify(edits));
+    void saveRemoteAdminState(REMOTE_KEYS.edits, edits);
   }, [edits, hydrated]);
+
+  const persistCatalogState = (nextHiddenIds: string[], nextCustomProducts: Product[], nextEdits: Record<string, ProductEdit>) => {
+    safeSetItem(KEY, JSON.stringify(nextHiddenIds));
+    safeSetItem(CUSTOM_KEY, JSON.stringify(nextCustomProducts));
+    safeSetItem(EDITS_KEY, JSON.stringify(nextEdits));
+    void saveRemoteAdminState(REMOTE_KEYS.hidden, nextHiddenIds);
+    void saveRemoteAdminState(REMOTE_KEYS.custom, nextCustomProducts);
+    void saveRemoteAdminState(REMOTE_KEYS.edits, nextEdits);
+  };
 
   const value = useMemo<AdminCtx>(() => {
     const merge = (p: Product): Product => {
@@ -154,21 +243,28 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       hide: (id) => {
         if (hiddenIds.includes(id)) return;
         void recordAudit(id, "removed");
-        setHiddenIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+        const next = [...hiddenIds, id];
+        setHiddenIds(next);
+        persistCatalogState(next, customProducts, edits);
       },
       show: (id) => {
         if (!hiddenIds.includes(id)) return;
         void recordAudit(id, "restored");
-        setHiddenIds((prev) => prev.filter((x) => x !== id));
+        const next = hiddenIds.filter((x) => x !== id);
+        setHiddenIds(next);
+        persistCatalogState(next, customProducts, edits);
       },
       toggle: (id) => {
         const wasHidden = hiddenIds.includes(id);
         void recordAudit(id, wasHidden ? "restored" : "removed");
-        setHiddenIds((prev) =>
-          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-        );
+        const next = wasHidden ? hiddenIds.filter((x) => x !== id) : [...hiddenIds, id];
+        setHiddenIds(next);
+        persistCatalogState(next, customProducts, edits);
       },
-      clear: () => setHiddenIds([]),
+      clear: () => {
+        setHiddenIds([]);
+        persistCatalogState([], customProducts, edits);
+      },
       addProduct: (input) => {
         const id = `custom-${Date.now().toString(36)}`;
         const base = slugify(input.name);
@@ -192,7 +288,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           isNew: true,
           images: input.images.length ? input.images : ["/placeholder.svg"],
         };
-        setCustomProducts((prev) => [product, ...prev]);
+        const nextCustom = [product, ...customProducts];
+        setCustomProducts(nextCustom);
+        persistCatalogState(hiddenIds, nextCustom, edits);
         void recordAudit(id, "added", product.name);
         return product;
       },
@@ -200,12 +298,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         const product = customProducts.find((p) => p.id === id);
         if (!product) return;
         void recordAudit(id, "deleted", product.name);
-        setCustomProducts((prev) => prev.filter((p) => p.id !== id));
-        setEdits((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
+        const nextCustom = customProducts.filter((p) => p.id !== id);
+        const nextEdits = { ...edits };
+        delete nextEdits[id];
+        setCustomProducts(nextCustom);
+        setEdits(nextEdits);
+        persistCatalogState(hiddenIds, nextCustom, nextEdits);
       },
       updateProduct: (id, patch) => {
         const current = allProducts.find((p) => p.id === id);
@@ -224,16 +322,17 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           ...(patch.images !== undefined && patch.images.length ? { images: patch.images } : {}),
           salePrice: patch.salePrice ?? null,
         };
+        const nextEdits = { ...edits, [id]: next };
         void recordAudit(id, "edited", patch.name ?? current.name);
-        setEdits((prev) => ({ ...prev, [id]: next }));
+        setEdits(nextEdits);
+        persistCatalogState(hiddenIds, customProducts, nextEdits);
       },
       resetProduct: (id) => {
         if (!edits[id]) return;
-        setEdits((prev) => {
-          const next = { ...prev };
-          delete next[id];
-          return next;
-        });
+        const nextEdits = { ...edits };
+        delete nextEdits[id];
+        setEdits(nextEdits);
+        persistCatalogState(hiddenIds, customProducts, nextEdits);
       },
     };
   }, [isAdmin, hiddenIds, customProducts, edits]);

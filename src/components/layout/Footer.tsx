@@ -80,9 +80,9 @@ export function Footer() {
           <div>© {new Date().getFullYear()} Hunza & Co. All rights reserved.</div>
           <div className="flex items-center gap-4">
             <span>Handcrafted with care in the Karakoram.</span>
-            <a href="/auth" rel="nofollow" className="underline hover:text-foreground">
+            <Link to="/auth" className="underline hover:text-foreground">
               Admin
-            </a>
+            </Link>
           </div>
         </div>
       </div>

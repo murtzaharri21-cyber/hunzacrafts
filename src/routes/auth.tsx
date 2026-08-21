@@ -50,6 +50,7 @@ function AuthPage() {
   const { next } = Route.useSearch();
   const navigate = useNavigate();
   const target = safeNext(next);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
