@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, LogOut, Menu, ScrollText, Search, ShoppingBag, X } from "lucide-react";
+import { Heart, LogOut, Menu, ScrollText, Search, ShoppingBag, Truck, X } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart-context";
 import { useWishlist } from "@/lib/wishlist-context";
@@ -49,6 +49,14 @@ export function Header() {
         <div className="ml-auto flex items-center gap-1">
           {isAdmin && (
             <>
+              <Link
+                to="/admin/orders"
+                aria-label="Order tracking"
+                title="Order tracking"
+                className="rounded-full p-2 hover:bg-muted transition-colors"
+              >
+                <Truck className="h-4.5 w-4.5" />
+              </Link>
               <Link
                 to="/admin/audit-log"
                 aria-label="Catalog audit log"
