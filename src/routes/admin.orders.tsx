@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Clock,
   Eye,
+  MessageCircle,
   Package,
   Search,
   ShoppingBag,
@@ -123,6 +124,14 @@ function pkr(n: number) {
   return `PKR ${n.toLocaleString("en-PK")}`;
 }
 
+function getWhatsAppLink(phone?: string | null) {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return null;
+  const normalized = digits.startsWith("0") ? `92${digits.slice(1)}` : digits.startsWith("92") ? digits : digits;
+  return `https://wa.me/${normalized}`;
+}
+
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: OrderStatus }) {
@@ -203,6 +212,7 @@ function OrderDetailSheet({
   const subtotal = order.subtotal ?? 0;
   const shippingCost = order.shipping_cost ?? 0;
   const total = order.total ?? subtotal + shippingCost;
+  const whatsappLink = getWhatsAppLink(contact.phone);
 
   const handleSave = async () => {
     setSaving(true);
@@ -286,6 +296,17 @@ function OrderDetailSheet({
               )}
               {contact.phone && (
                 <p className="mt-0.5 text-sm text-muted-foreground">{contact.phone}</p>
+              )}
+              {whatsappLink && (
+                <a
+                  href={whatsappLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  Chat on WhatsApp
+                </a>
               )}
               {order.payment_method && (
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -590,6 +611,7 @@ function OrdersPage() {
                       <TableHead className="hidden text-xs font-semibold uppercase tracking-wider text-muted-foreground md:table-cell">Total</TableHead>
                       <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</TableHead>
                       <TableHead className="hidden text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:table-cell">Date</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">WhatsApp</TableHead>
                       <TableHead className="w-[52px]" />
                     </TableRow>
                   </TableHeader>
@@ -597,7 +619,7 @@ function OrdersPage() {
                     {loading ? (
                       Array.from({ length: 6 }).map((_, i) => (
                         <TableRow key={i}>
-                          {Array.from({ length: 6 }).map((_, j) => (
+                          {Array.from({ length: 7 }).map((_, j) => (
                             <TableCell key={j}>
                               <div className="h-4 animate-pulse rounded bg-muted" />
                             </TableCell>
@@ -606,7 +628,7 @@ function OrdersPage() {
                       ))
                     ) : filtered.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="py-16 text-center">
+                        <TableCell colSpan={7} className="py-16 text-center">
                           <ShoppingBag className="mx-auto h-8 w-8 text-muted-foreground/40" />
                           <p className="mt-2 text-sm text-muted-foreground">
                             {search || statusFilter !== "all"
@@ -624,43 +646,63 @@ function OrdersPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filtered.map((o) => (
-                        <TableRow
-                          key={o.id}
-                          className="cursor-pointer"
-                          onClick={() => openDetail(o)}
-                        >
-                          <TableCell className="font-mono text-xs text-muted-foreground">
-                            {o.order_id}
-                          </TableCell>
-                          <TableCell>
-                            <p className="text-sm font-medium">
-                              {o.contact?.name ?? "Guest"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">{o.user_email}</p>
-                          </TableCell>
-                          <TableCell className="hidden text-sm font-medium md:table-cell">
-                            {o.total ? pkr(o.total) : "—"}
-                          </TableCell>
-                          <TableCell>
-                            <StatusBadge status={(o.status ?? "pending") as OrderStatus} />
-                          </TableCell>
-                          <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
-                            {format(new Date(o.created_at), "dd MMM yyyy")}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                              onClick={(e) => { e.stopPropagation(); openDetail(o); }}
-                            >
-                              <Eye className="h-3.5 w-3.5" />
-                              <span className="sr-only">View order</span>
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      filtered.map((o) => {
+                        const whatsappLink = getWhatsAppLink(o.contact?.phone);
+                        return (
+                          <TableRow
+                            key={o.id}
+                            className="cursor-pointer"
+                            onClick={() => openDetail(o)}
+                          >
+                            <TableCell className="font-mono text-xs text-muted-foreground">
+                              {o.order_id}
+                            </TableCell>
+                            <TableCell>
+                              <p className="text-sm font-medium">
+                                {o.contact?.name ?? "Guest"}
+                              </p>
+                              <p className="text-xs text-muted-foreground">{o.user_email}</p>
+                            </TableCell>
+                            <TableCell className="hidden text-sm font-medium md:table-cell">
+                              {o.total ? pkr(o.total) : "—"}
+                            </TableCell>
+                            <TableCell>
+                              <StatusBadge status={(o.status ?? "pending") as OrderStatus} />
+                            </TableCell>
+                            <TableCell className="hidden text-sm text-muted-foreground sm:table-cell">
+                              {format(new Date(o.created_at), "dd MMM yyyy")}
+                            </TableCell>
+                            <TableCell>
+                              {whatsappLink ? (
+                                <a
+                                  href={whatsappLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 hover:bg-emerald-100"
+                                  title={o.contact?.phone ?? "WhatsApp contact"}
+                                >
+                                  <MessageCircle className="h-3.5 w-3.5" />
+                                  Chat
+                                </a>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                                onClick={(e) => { e.stopPropagation(); openDetail(o); }}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                                <span className="sr-only">View order</span>
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
