@@ -25,6 +25,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAuditLogRouteImport } from './routes/admin.audit-log'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
+import { Route as ApiCheckAdminRouteImport } from './routes/api.check-admin'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -112,6 +113,11 @@ const AdminOrdersRoute = AdminOrdersRouteImport.update({
   path: '/admin/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCheckAdminRoute = ApiCheckAdminRouteImport.update({
+  id: '/api/check-admin',
+  path: '/api/check-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/api/check-admin': typeof ApiCheckAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/api/check-admin': typeof ApiCheckAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/api/check-admin': typeof ApiCheckAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit-log'
     | '/admin/orders'
+    | '/api/check-admin'
     | '/auth/callback'
     | '/product/$slug'
     | '/admin/'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit-log'
     | '/admin/orders'
+    | '/api/check-admin'
     | '/auth/callback'
     | '/product/$slug'
     | '/admin'
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit-log'
     | '/admin/orders'
+    | '/api/check-admin'
     | '/auth/callback'
     | '/product/$slug'
     | '/admin/'
@@ -286,6 +298,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditLogRoute: typeof AdminAuditLogRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
+  ApiCheckAdminRoute: typeof ApiCheckAdminRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -406,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/check-admin': {
+      id: '/api/check-admin'
+      path: '/api/check-admin'
+      fullPath: '/api/check-admin'
+      preLoaderRoute: typeof ApiCheckAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/callback'
@@ -464,6 +484,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminAuditLogRoute: AdminAuditLogRoute,
   AdminOrdersRoute: AdminOrdersRoute,
+  ApiCheckAdminRoute: ApiCheckAdminRoute,
   ProductSlugRoute: ProductSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
