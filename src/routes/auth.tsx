@@ -52,7 +52,7 @@ async function ensureAdmin(): Promise<boolean> {
 
     // First, try the database RPC if available
     try {
-      const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+      const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role_text", {
         _user_id: user.id,
         _role: "admin",
       });

@@ -65,7 +65,7 @@ function Callback() {
         // Verify admin access (admin roles are assigned server-side only).
         // Try RPC first
         try {
-          const { data: ok, error: rpcError } = await (supabase as any).rpc('has_role', {
+          const { data: ok, error: rpcError } = await (supabase as any).rpc('has_role_text', {
             _user_id: data.user.id,
             _role: 'admin',
           });
