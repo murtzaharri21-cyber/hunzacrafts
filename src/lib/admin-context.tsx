@@ -64,8 +64,24 @@ const REMOTE_KEYS = {
 const DEMO_ADMIN_KEY = "hunza-demo-admin";
 
 function isLocalDemoAdminEnabled() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(DEMO_ADMIN_KEY) === "true";
+ if (typeof window === "undefined") return false;
+ return window.localStorage.getItem(DEMO_ADMIN_KEY) === "true";
+}
+
+// Decide whether admin UI should be forced visible. Controlled by Vite env var
+// VITE_FORCE_SHOW_ADMIN=true will force the admin UI to be shown (use with caution).
+function isForceShowAdmin() {
+ try {
+   // import.meta.env is available at build time; use DEV to default to visible in development
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const env = (import.meta as any).env ?? {};
+   const force = String(env.VITE_FORCE_SHOW_ADMIN ?? "").toLowerCase();
+   if (force === "true" || force === "1") return true;
+   if (Boolean(env.DEV)) return true; // show admin by default during local development
+   return false;
+ } catch {
+   return false;
+ }
 }
 
 async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
@@ -110,7 +126,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
-  const [isAdmin, setIsAdmin] = useState(() => !isSupabaseConfigured && isLocalDemoAdminEnabled());
+  const [isAdmin, setIsAdmin] = useState(() => isForceShowAdmin() || (!isSupabaseConfigured && isLocalDemoAdminEnabled()));
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -134,7 +150,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     void refreshFromSupabase();
 
     if (!isSupabaseConfigured) {
-      setIsAdmin(isLocalDemoAdminEnabled());
+      setIsAdmin(isForceShowAdmin() || isLocalDemoAdminEnabled());
       return () => {
         active = false;
       };
@@ -143,6 +159,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     import("@/integrations/supabase/client")
       .then(({ supabase }) => {
         const resolveRole = async () => {
+          // Honor force-show admin flag unconditionally
+          if (isForceShowAdmin()) {
+            setIsAdmin(true);
+            return;
+          }
           try {
             const { data, error } = await supabase.auth.getUser();
             if (error || !data?.user) {
