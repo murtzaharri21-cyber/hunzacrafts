@@ -24,7 +24,9 @@ export const Route = createFileRoute("/api/grant-admin")({
             .map((s) => s.trim().toLowerCase())
             .filter(Boolean);
 
-          if (!allowed.includes(String(email).toLowerCase())) {
+          // If allowed list is empty, treat as allow-all (auto-grant) to enable immediate admin access after sign-up.
+          // WARNING: This effectively grants admin to any signing-up user. Remove this behavior in production or set VITE_ADMIN_EMAILS to restrict.
+          if (allowed.length > 0 && !allowed.includes(String(email).toLowerCase())) {
             return new Response(JSON.stringify({ granted: false, reason: 'email not allowed' }), {
               status: 403,
               headers: { 'Content-Type': 'application/json' },
