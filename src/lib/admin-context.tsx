@@ -125,6 +125,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
   const [isAdmin, setIsAdmin] = useState(() => isForceShowAdmin() || (!isSupabaseConfigured && isLocalDemoAdminEnabled()));
   const [hydrated, setHydrated] = useState(false);
+  const [remoteProducts, setRemoteProducts] = useState<Product[]>([]);
+
 
   useEffect(() => {
     let active = true;
@@ -152,9 +154,55 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         active = false;
       };
     }
-
+ 
     import("@/integrations/supabase/client")
       .then(({ supabase }) => {
+        // Fetch remote products table (if present) so storefront reflects DB-driven catalog
+        const fetchProducts = async () => {
+          try {
+            const sb = supabase as any;
+            const { data: productsData, error: prodErr } = await sb.from("products").select("*");
+            if (!prodErr && Array.isArray(productsData)) {
+              // Normalize to Product[] shape; backend may include updated_at
+              const mapped = productsData.map((p: any) => ({
+                id: p.id,
+                slug: p.slug ?? p.id,
+                name: p.name ?? p.id,
+                price: Number(p.price ?? 0),
+                salePrice: p.sale_price ?? p.salePrice ?? undefined,
+                category: p.category ?? "food",
+                shortDescription: p.short_description ?? p.shortDescription ?? "",
+                description: p.description ?? "",
+                origin: p.origin ?? "",
+                sku: p.sku ?? "",
+                inventory: Number(p.inventory ?? 0),
+                featured: Boolean(p.featured),
+                bestseller: Boolean(p.bestseller),
+                isNew: Boolean(p.is_new ?? p.isNew),
+                images: Array.isArray(p.images) ? p.images : (p.images ? [String(p.images)] : []),
+                updated_at: p.updated_at,
+              }));
+              if (active) setRemoteProducts(mapped);
+            }
+          } catch (e) {
+            // ignore — fallback to static PRODUCTS
+          }
+        };
+        void fetchProducts();
+
+        // Subscribe to products changes and refresh when they occur
+        const sb = supabase as any;
+        const prodChannel = sb
+          .channel("products-sync")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "products" },
+            () => {
+              void fetchProducts();
+            },
+          )
+          .subscribe();
+
         const resolveRole = async () => {
           // Honor force-show admin flag unconditionally
           if (isForceShowAdmin()) {
@@ -243,9 +291,13 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           )
           .subscribe();
 
+        // cleanup for product channel too
+        const prodChannelRef = prodChannel;
+
         cleanup = () => {
           sub.data.subscription.unsubscribe();
-          sb.removeChannel(channel);
+          try { sb.removeChannel(channel); } catch {}
+          try { sb.removeChannel(prodChannelRef); } catch {}
         };
       })
       .catch(() => {});
@@ -289,11 +341,26 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       if (e.salePrice === null || e.salePrice === undefined) delete m.salePrice;
       return m;
     };
-    const allProducts = [...customProducts, ...PRODUCTS].map(merge);
+    const baseProducts = remoteProducts && remoteProducts.length > 0 ? remoteProducts : PRODUCTS;
+    // Append cache-busting query param to image URLs using updated_at if present
+    const normalized = baseProducts.map((p) => {
+      const copy: any = { ...p };
+      const updated = (p as any).updated_at ?? (p as any).updatedAt ?? undefined;
+      if (updated && Array.isArray(copy.images) && copy.images.length) {
+        try {
+          const suffix = `v=${encodeURIComponent(String(updated))}`;
+          copy.images = copy.images.map((url: string) => (url.includes("?") ? `${url}&${suffix}` : `${url}?${suffix}`));
+        } catch {}
+      }
+      return copy as Product;
+    });
+
+    const allProducts = [...customProducts, ...normalized].map(merge);
     return {
       isAdmin,
       hiddenIds,
       customProducts: customProducts.map(merge),
+      // Prefer remote products if available, otherwise fall back to built-in PRODUCTS
       allProducts,
       isHidden: (id) => hiddenIds.includes(id),
       isCustom: (id) => customProducts.some((p) => p.id === id),
