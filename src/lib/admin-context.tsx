@@ -99,12 +99,24 @@ async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
 
 async function saveRemoteAdminState<T>(remoteKey: string, value: T) {
   try {
-    const { supabase } = await import("@/integrations/supabase/client");
-    const sb = supabase as any;
-    const { error } = await sb
-      .from("site_settings")
-      .upsert({ key: remoteKey, value }, { onConflict: "key" });
-    if (error) throw error;
+    // Use server-side trusted endpoint to persist catalog state. Client must send current user id to verify admin.
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase.auth.getUser();
+      const userId = data?.user?.id ?? undefined;
+      if (!userId) return; // cannot persist without user context
+      const payload: any = { user_id: userId };
+      payload[remoteKey === REMOTE_KEYS.hidden ? 'hidden' : remoteKey === REMOTE_KEYS.custom ? 'custom' : 'edits'] = value;
+      await fetch('/api/admin/catalog', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(() => {});
+    } catch (e) {
+      // fallback to previous client-side upsert if server endpoint fails
+      const { supabase } = await import("@/integrations/supabase/client");
+      const sb = supabase as any;
+      const { error } = await sb
+        .from("site_settings")
+        .upsert({ key: remoteKey, value }, { onConflict: "key" });
+      if (error) throw error;
+    }
   } catch {
     // Remote persistence is best-effort so the storefront keeps working without a database sync.
   }
