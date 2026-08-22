@@ -450,36 +450,28 @@ function OrdersPage() {
           return;
         }
 
-        const { supabase } = await import("@/integrations/supabase/client");
         const start = (page - 1) * pageSize;
-        const end = start + pageSize - 1;
-
-        let q = (supabase as any)
-          .from("order_requests")
-          .select("*", { count: "exact" })
-          .order("created_at", { ascending: false })
-          .range(start, end);
-        if (search.trim()) {
-          const s = `%${search.trim()}%`;
-          q = q.or(`order_id.ilike.${s},user_email.ilike.${s}`);
-        }
-        const { data, count, error: err } = await q;
-        if (!active) return;
-        if (err) {
-          const msg = err.message ?? "";
-          if (
-            msg.includes("Invalid API key") ||
-            msg.includes("JWT") ||
-            msg.includes("Unauthorized")
-          ) {
-            setOrders([]);
-            setTotal(0);
-            return;
+        const body = { page, pageSize, search };
+        try {
+          const resp = await fetch('/api/admin/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          if (!active) return;
+          if (!resp.ok) {
+            const text = await resp.text().catch(() => '');
+            const msg = text || `Server returned ${resp.status}`;
+            setError(msg);
+          } else {
+            const json = await resp.json();
+            setOrders((json.data ?? []) as OrderRequest[]);
+            setTotal(json.count ?? null);
           }
-          setError(msg);
-        } else {
-          setOrders((data ?? []) as OrderRequest[]);
-          setTotal(count ?? null);
+        } catch (e) {
+          if (!active) return;
+          const message = e instanceof Error ? e.message : String(e);
+          setError(message);
         }
       } catch (e) {
         if (active) {
