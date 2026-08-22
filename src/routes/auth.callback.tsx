@@ -40,8 +40,7 @@ function Callback() {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const env = (import.meta as any).env ?? {};
-        const force = String(env.VITE_FORCE_SHOW_ADMIN ?? '').toLowerCase();
-        if (force === 'true' || force === '1') return true;
+        // Only allow forcing admin in development (DEV). Do not honor VITE_FORCE_SHOW_ADMIN in production.
         if (Boolean(env.DEV)) return true;
         return false;
       } catch {

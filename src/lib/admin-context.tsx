@@ -68,20 +68,17 @@ function isLocalDemoAdminEnabled() {
  return window.localStorage.getItem(DEMO_ADMIN_KEY) === "true";
 }
 
-// Decide whether admin UI should be forced visible. Controlled by Vite env var
-// VITE_FORCE_SHOW_ADMIN=true will force the admin UI to be shown (use with caution).
+// Decide whether admin UI should be forced visible. Only enable in local development.
 function isForceShowAdmin() {
- try {
-   // import.meta.env is available at build time; use DEV to default to visible in development
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const env = (import.meta as any).env ?? {};
-   const force = String(env.VITE_FORCE_SHOW_ADMIN ?? "").toLowerCase();
-   if (force === "true" || force === "1") return true;
-   if (Boolean(env.DEV)) return true; // show admin by default during local development
-   return false;
- } catch {
-   return false;
- }
+  try {
+    // import.meta.env is available at build time; only honor DEV to avoid forcing admin in production
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const env = (import.meta as any).env ?? {};
+    if (Boolean(env.DEV)) return true; // show admin by default during local development
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
