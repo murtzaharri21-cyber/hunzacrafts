@@ -171,11 +171,38 @@ export function AdminProvider({ children }: { children: ReactNode }) {
               return;
             }
             const user = data.user;
-            const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
-              _user_id: user.id,
-              _role: "admin",
-            });
-            setIsAdmin(!rpcError && ok === true);
+
+            // Try RPC first
+            try {
+              const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+                _user_id: user.id,
+                _role: "admin",
+              });
+              if (!rpcError && ok === true) {
+                setIsAdmin(true);
+                return;
+              }
+            } catch (e) {
+              // ignore and fallback to email list
+            }
+
+            // Fallback: check env-provided admin emails
+            try {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const env = (import.meta as any).env ?? {};
+              const raw = env.VITE_ADMIN_EMAILS ?? (typeof process !== 'undefined' ? process.env.ADMIN_EMAILS : undefined);
+              const emails = raw
+                ? String(raw).split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean)
+                : [];
+              if (emails.length > 0 && user.email && emails.includes(user.email.toLowerCase())) {
+                setIsAdmin(true);
+                return;
+              }
+            } catch (e) {
+              // ignore
+            }
+
+            setIsAdmin(false);
           } catch {
             setIsAdmin(false);
           }

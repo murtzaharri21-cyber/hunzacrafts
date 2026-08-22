@@ -14,6 +14,7 @@ Set these four env vars in the Vercel Project Settings → Environment Variables
 - VITE_SUPABASE_PUBLISHABLE_KEY = <your anon / publishable key>
 - SUPABASE_URL = https://<your-project-ref>.supabase.co
 - SUPABASE_PUBLISHABLE_KEY = <your anon / publishable key>
+- (Optional) VITE_ADMIN_EMAILS = comma-separated list of admin emails to allow login fallback (e.g. admin@example.com,user2@example.com)
 
 Notes:
 - Do NOT set the Supabase service_role (secret) as a client environment variable.

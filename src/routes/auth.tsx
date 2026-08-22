@@ -29,22 +29,49 @@ export const Route = createFileRoute("/auth")({
 });
 
 /** Confirms the signed-in user is an admin; signs them out otherwise. */
+function readAdminEmails(): string[] {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const env = (import.meta as any).env ?? {};
+    const raw = env.VITE_ADMIN_EMAILS ?? (typeof process !== 'undefined' ? process.env.ADMIN_EMAILS : undefined);
+    if (!raw) return [];
+    return String(raw)
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 async function ensureAdmin(): Promise<boolean> {
   try {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data?.user) return false;
     const user = data.user;
-    // Admin roles are assigned directly in the database; never self-claimed.
-    const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
-      _user_id: user.id,
-      _role: "admin",
-    });
-    if (rpcError || ok !== true) {
-      await supabase.auth.signOut().catch(() => {});
-      return false;
+
+    // First, try the database RPC if available
+    try {
+      const { data: ok, error: rpcError } = await (supabase as any).rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+      if (!rpcError && ok === true) return true;
+    } catch (rpcErr) {
+      // ignore and fallback to email list
     }
-    return true;
-  } catch {
+
+    // Fallback: allow admin by email list provided in env (VITE_ADMIN_EMAILS or ADMIN_EMAILS)
+    const emails = readAdminEmails();
+    if (emails.length > 0 && user.email && emails.includes(user.email.toLowerCase())) {
+      return true;
+    }
+
+    // Final fallback: sign out the user and deny access
+    await supabase.auth.signOut().catch(() => {});
+    return false;
+  } catch (err) {
+    console.warn('ensureAdmin error:', err);
     return false;
   }
 }
