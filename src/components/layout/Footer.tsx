@@ -15,16 +15,29 @@ export function Footer() {
         <div className="md:col-span-1">
           <div className="font-display text-xl">Hunza & Co.</div>
           <p className="mt-3 text-sm text-muted-foreground">
-            Authentic products from the heart of the Karakoram — sourced directly from the farmers and artisans of Hunza.
+            Authentic products from the heart of the Karakoram — sourced directly from the farmers
+            and artisans of Hunza.
           </p>
           <div className="mt-4 flex gap-3">
-            <a href="#" aria-label="Instagram" className="rounded-full border border-border p-2 hover:bg-background transition-colors">
+            <a
+              href="#"
+              aria-label="Instagram"
+              className="rounded-full border border-border p-2 hover:bg-background transition-colors"
+            >
               <Instagram className="h-4 w-4" />
             </a>
-            <a href="#" aria-label="Facebook" className="rounded-full border border-border p-2 hover:bg-background transition-colors">
+            <a
+              href="#"
+              aria-label="Facebook"
+              className="rounded-full border border-border p-2 hover:bg-background transition-colors"
+            >
               <Facebook className="h-4 w-4" />
             </a>
-            <a href="#" aria-label="YouTube" className="rounded-full border border-border p-2 hover:bg-background transition-colors">
+            <a
+              href="#"
+              aria-label="YouTube"
+              className="rounded-full border border-border p-2 hover:bg-background transition-colors"
+            >
               <Youtube className="h-4 w-4" />
             </a>
           </div>
@@ -33,20 +46,52 @@ export function Footer() {
         <div>
           <h4 className="text-sm font-medium">Shop</h4>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/shop" className="hover:text-foreground">All Products</Link></li>
-            <li><Link to="/shop" className="hover:text-foreground">Dry Fruits</Link></li>
-            <li><Link to="/shop" className="hover:text-foreground">Honey</Link></li>
-            <li><Link to="/shop" className="hover:text-foreground">Handicrafts</Link></li>
+            <li>
+              <Link to="/shop" className="hover:text-foreground">
+                All Products
+              </Link>
+            </li>
+            <li>
+              <Link to="/shop" className="hover:text-foreground">
+                Dry Fruits
+              </Link>
+            </li>
+            <li>
+              <Link to="/shop" className="hover:text-foreground">
+                Honey
+              </Link>
+            </li>
+            <li>
+              <Link to="/shop" className="hover:text-foreground">
+                Handicrafts
+              </Link>
+            </li>
           </ul>
         </div>
 
         <div>
           <h4 className="text-sm font-medium">Company</h4>
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/about" className="hover:text-foreground">About Hunza</Link></li>
-            <li><Link to="/contact" className="hover:text-foreground">Contact</Link></li>
-            <li><a href="#" className="hover:text-foreground">Shipping</a></li>
-            <li><a href="#" className="hover:text-foreground">Returns</a></li>
+            <li>
+              <Link to="/about" className="hover:text-foreground">
+                About Hunza
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="hover:text-foreground">
+                Contact
+              </Link>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Shipping
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Returns
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -73,7 +118,6 @@ export function Footer() {
         </div>
       </div>
       <EditContactDialog open={editOpen} onOpenChange={setEditOpen} />
-
 
       <div className="border-t border-border/60">
         <div className="container-x flex flex-col gap-2 py-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">

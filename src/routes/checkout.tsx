@@ -6,10 +6,7 @@ import { formatPKR } from "@/lib/products";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
-    meta: [
-      { title: "Checkout — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Checkout — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   component: CheckoutPage,
 });
@@ -72,17 +69,20 @@ function CheckoutPage() {
       await (supabase as any).from("order_requests").insert([payload]);
 
       try {
-        localStorage.setItem("hunza:last-order", JSON.stringify({
-          order_id: orderId,
-          user_email: user?.email ?? email ?? null,
-          total,
-          status: "pending",
-          created_at: payload.created_at,
-          items,
-          contact: payload.contact,
-          shipping: payload.shipping,
-          payment_method: payment,
-        }));
+        localStorage.setItem(
+          "hunza:last-order",
+          JSON.stringify({
+            order_id: orderId,
+            user_email: user?.email ?? email ?? null,
+            total,
+            status: "pending",
+            created_at: payload.created_at,
+            items,
+            contact: payload.contact,
+            shipping: payload.shipping,
+            payment_method: payment,
+          }),
+        );
       } catch {
         // Ignore local storage issues; the checkout session should still proceed.
       }
@@ -116,19 +116,60 @@ function CheckoutPage() {
           <div>
             <h2 className="font-display text-xl">Contact</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <input required placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm" />
-              <input required type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm" />
-              <input required placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2" />
+              <input
+                required
+                placeholder="Full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm"
+              />
+              <input
+                required
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm"
+              />
+              <input
+                required
+                placeholder="Phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2"
+              />
             </div>
           </div>
 
           <div>
             <h2 className="font-display text-xl">Shipping</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <input required placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2" />
-              <input required placeholder="City" value={city} onChange={(e) => setCity(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm" />
-              <input required placeholder="Postal code" value={postal} onChange={(e) => setPostal(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm" />
-              <select value={country} onChange={(e) => setCountry(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2">
+              <input
+                required
+                placeholder="Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2"
+              />
+              <input
+                required
+                placeholder="City"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm"
+              />
+              <input
+                required
+                placeholder="Postal code"
+                value={postal}
+                onChange={(e) => setPostal(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm"
+              />
+              <select
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="rounded-lg border border-border bg-background px-3 py-2.5 text-sm sm:col-span-2"
+              >
                 <option>Pakistan</option>
               </select>
             </div>
@@ -138,15 +179,28 @@ function CheckoutPage() {
             <h2 className="font-display text-xl">Payment</h2>
             <div className="mt-4 space-y-2">
               {["Cash on Delivery", "Bank Transfer", "Card (coming soon)"].map((m) => (
-                <label key={m} className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-4 has-checked:border-foreground">
-                  <input type="radio" name="pay" value={m} checked={payment === m} onChange={() => setPayment(m)} className="accent-foreground" />
+                <label
+                  key={m}
+                  className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-4 has-checked:border-foreground"
+                >
+                  <input
+                    type="radio"
+                    name="pay"
+                    value={m}
+                    checked={payment === m}
+                    onChange={() => setPayment(m)}
+                    className="accent-foreground"
+                  />
                   <span className="text-sm">{m}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          <button disabled={busy} className="w-full rounded-full bg-foreground py-3.5 text-sm font-medium text-background hover:bg-foreground/90">
+          <button
+            disabled={busy}
+            className="w-full rounded-full bg-foreground py-3.5 text-sm font-medium text-background hover:bg-foreground/90"
+          >
             {busy ? "Placing order…" : `Place Order · ${formatPKR(total)}`}
           </button>
         </form>
@@ -157,7 +211,11 @@ function CheckoutPage() {
             {detailed.map(({ product, qty, lineTotal }) => (
               <li key={product.id} className="flex items-center gap-3 py-3">
                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm">{product.name}</div>
@@ -167,7 +225,9 @@ function CheckoutPage() {
               </li>
             ))}
             {detailed.length === 0 && (
-              <li className="py-6 text-center text-sm text-muted-foreground">Your cart is empty.</li>
+              <li className="py-6 text-center text-sm text-muted-foreground">
+                Your cart is empty.
+              </li>
             )}
           </ul>
 
@@ -180,7 +240,11 @@ function CheckoutPage() {
             />
             <button
               type="button"
-              onClick={() => setApplied(coupon.trim().toUpperCase() === "HUNZA10" ? Math.round(subtotal * 0.1) : 0)}
+              onClick={() =>
+                setApplied(
+                  coupon.trim().toUpperCase() === "HUNZA10" ? Math.round(subtotal * 0.1) : 0,
+                )
+              }
               className="rounded-full border border-border px-4 py-2 text-sm hover:bg-muted"
             >
               Apply
@@ -188,13 +252,23 @@ function CheckoutPage() {
           </div>
 
           <dl className="space-y-2 border-t border-border pt-4 text-sm">
-            <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{formatPKR(subtotal)}</dd></div>
-            <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>{shipping === 0 ? "Free" : formatPKR(shipping)}</dd></div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Subtotal</dt>
+              <dd>{formatPKR(subtotal)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Shipping</dt>
+              <dd>{shipping === 0 ? "Free" : formatPKR(shipping)}</dd>
+            </div>
             {applied > 0 && (
-              <div className="flex justify-between text-accent"><dt>Discount</dt><dd>- {formatPKR(applied)}</dd></div>
+              <div className="flex justify-between text-accent">
+                <dt>Discount</dt>
+                <dd>- {formatPKR(applied)}</dd>
+              </div>
             )}
             <div className="flex justify-between border-t border-border pt-2 text-base font-medium">
-              <dt>Total</dt><dd>{formatPKR(total)}</dd>
+              <dt>Total</dt>
+              <dd>{formatPKR(total)}</dd>
             </div>
           </dl>
         </aside>

@@ -18,7 +18,8 @@ export const Route = createFileRoute("/shop")({
       { title: "Shop — Hunza & Co." },
       {
         name: "description",
-        content: "Browse authentic Hunza foods, dry fruits, honey, handicrafts and organic products.",
+        content:
+          "Browse authentic Hunza foods, dry fruits, honey, handicrafts and organic products.",
       },
     ],
     links: [{ rel: "canonical", href: "/shop" }],
@@ -73,7 +74,6 @@ function ShopPage() {
       </section>
 
       <AddProductDialog open={addOpen} onOpenChange={setAddOpen} />
-
 
       <section className="container-x mt-10 md:mt-14">
         <div className="grid gap-10 md:grid-cols-[220px_1fr] md:gap-14">

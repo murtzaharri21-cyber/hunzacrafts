@@ -130,7 +130,9 @@ export function QuickViewDialog({
                   onClick={() => setIndex(i)}
                   aria-label={`Show image ${i + 1}`}
                   className={`h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border transition ${
-                    i === index ? "border-foreground" : "border-transparent opacity-70 hover:opacity-100"
+                    i === index
+                      ? "border-foreground"
+                      : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
                   <img src={src} alt="" className="h-full w-full object-cover" />

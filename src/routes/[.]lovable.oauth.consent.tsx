@@ -12,13 +12,17 @@ type OAuthDetails = {
   scope?: string;
 };
 type OAuthApi = {
-  getAuthorizationDetails: (id: string) => Promise<{ data: OAuthDetails | null; error: Error | null }>;
-  approveAuthorization: (
+  getAuthorizationDetails: (
     id: string,
-  ) => Promise<{ data: { redirect_url?: string; redirect_to?: string } | null; error: Error | null }>;
-  denyAuthorization: (
-    id: string,
-  ) => Promise<{ data: { redirect_url?: string; redirect_to?: string } | null; error: Error | null }>;
+  ) => Promise<{ data: OAuthDetails | null; error: Error | null }>;
+  approveAuthorization: (id: string) => Promise<{
+    data: { redirect_url?: string; redirect_to?: string } | null;
+    error: Error | null;
+  }>;
+  denyAuthorization: (id: string) => Promise<{
+    data: { redirect_url?: string; redirect_to?: string } | null;
+    error: Error | null;
+  }>;
 };
 const authOAuth = () => (supabase.auth as unknown as { oauth: OAuthApi }).oauth;
 
@@ -93,12 +97,10 @@ function Consent() {
     <SiteLayout>
       <section className="container-x pt-16 pb-24">
         <div className="max-w-lg rounded-3xl border border-border p-8">
-          <h1 className="font-display text-2xl">
-            Connect {clientName} to Hunza &amp; Co.
-          </h1>
+          <h1 className="font-display text-2xl">Connect {clientName} to Hunza &amp; Co.</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            {clientName} will be able to call this shop's MCP tools while you're signed in —
-            browse the catalog and (once enabled) manage products as you.
+            {clientName} will be able to call this shop's MCP tools while you're signed in — browse
+            the catalog and (once enabled) manage products as you.
           </p>
           <p className="mt-3 text-xs text-muted-foreground">
             This does not bypass this app's permissions or backend policies.

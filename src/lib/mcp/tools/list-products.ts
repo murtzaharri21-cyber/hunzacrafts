@@ -11,7 +11,13 @@ export default defineTool({
       .enum(["food", "dry-fruits", "organic", "handicrafts", "honey", "herbal", "gifts"])
       .optional()
       .describe("Filter to a single product category."),
-    limit: z.number().int().min(1).max(100).optional().describe("Max items to return (default 20)."),
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(100)
+      .optional()
+      .describe("Max items to return (default 20)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ category, limit }) => {

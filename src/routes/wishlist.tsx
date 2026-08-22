@@ -6,10 +6,7 @@ import { useWishlist } from "@/lib/wishlist-context";
 
 export const Route = createFileRoute("/wishlist")({
   head: () => ({
-    meta: [
-      { title: "Wishlist — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Wishlist — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   component: WishlistPage,
 });
@@ -28,7 +25,10 @@ function WishlistPage() {
         {items.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border p-14 text-center">
             <p className="text-muted-foreground">Nothing saved yet.</p>
-            <Link to="/shop" className="mt-6 inline-block rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background hover:bg-foreground/90">
+            <Link
+              to="/shop"
+              className="mt-6 inline-block rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background hover:bg-foreground/90"
+            >
               Browse products
             </Link>
           </div>

@@ -42,7 +42,8 @@ const REMOTE_KEY = "site-content";
 async function loadRemoteSiteContent(): Promise<Partial<SiteContent> | null> {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { data, error } = await supabase
+    const sb = supabase as any;
+    const { data, error } = await sb
       .from("site_settings")
       .select("value")
       .eq("key", REMOTE_KEY)
@@ -57,7 +58,8 @@ async function loadRemoteSiteContent(): Promise<Partial<SiteContent> | null> {
 async function saveRemoteSiteContent(next: SiteContent) {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { error } = await supabase
+    const sb = supabase as any;
+    const { error } = await sb
       .from("site_settings")
       .upsert({ key: REMOTE_KEY, value: next }, { onConflict: "key" });
     if (error) throw error;
@@ -86,7 +88,8 @@ export function SiteContentProvider({ children }: { children: ReactNode }) {
 
     import("@/integrations/supabase/client")
       .then(({ supabase }) => {
-        channel = supabase
+        const sb = supabase as any;
+        channel = sb
           .channel("site-content-sync")
           .on(
             "postgres_changes",

@@ -3,13 +3,7 @@ import crafts from "@/assets/product-crafts.jpg";
 import honey from "@/assets/product-honey.jpg";
 
 export type Category =
-  | "food"
-  | "dry-fruits"
-  | "organic"
-  | "handicrafts"
-  | "honey"
-  | "herbal"
-  | "gifts";
+  "food" | "dry-fruits" | "organic" | "handicrafts" | "honey" | "herbal" | "gifts";
 
 export type Product = {
   id: string;
@@ -127,8 +121,7 @@ export const PRODUCTS: Product[] = [
     price: 900,
     category: "herbal",
     shortDescription: "Wild-foraged mountain pepper tea, warming and citrusy.",
-    description:
-      "A traditional Hunza infusion made from tumuru berries. Naturally caffeine-free.",
+    description: "A traditional Hunza infusion made from tumuru berries. Naturally caffeine-free.",
     ingredients: "Wild tumuru berries.",
     origin: "Chapursan Valley",
     sku: "HZ-TEA-100",
@@ -143,8 +136,7 @@ export const PRODUCTS: Product[] = [
     price: 1400,
     category: "organic",
     shortDescription: "Tart, vitamin-rich juice from wild mountain berries.",
-    description:
-      "Cold-pressed from wild sea buckthorn. Sharp, bright, and loaded with vitamin C.",
+    description: "Cold-pressed from wild sea buckthorn. Sharp, bright, and loaded with vitamin C.",
     origin: "Passu, Hunza",
     sku: "HZ-SBJ-500",
     inventory: 40,
@@ -175,8 +167,7 @@ export const PRODUCTS: Product[] = [
     price: 1800,
     category: "handicrafts",
     shortDescription: "Hand-knitted wool cap with heritage patterns.",
-    description:
-      "The iconic rolled-brim cap of Hunza, knitted by hand in natural undyed wool.",
+    description: "The iconic rolled-brim cap of Hunza, knitted by hand in natural undyed wool.",
     origin: "Hyderabad, Hunza",
     sku: "HZ-CAP-01",
     inventory: 25,
@@ -221,8 +212,7 @@ export const PRODUCTS: Product[] = [
     price: 2600,
     category: "honey",
     shortDescription: "Aromatic single-origin honey from thyme meadows.",
-    description:
-      "Distinctly herbal with a long finish. Rare, small-batch and unpasteurised.",
+    description: "Distinctly herbal with a long finish. Rare, small-batch and unpasteurised.",
     ingredients: "100% raw thyme honey.",
     origin: "Shimshal, Upper Hunza",
     sku: "HZ-HNY-THY",

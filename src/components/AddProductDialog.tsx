@@ -111,7 +111,12 @@ export function AddProductDialog({
         <form onSubmit={submit} className="mt-5 space-y-4">
           <label className="block text-sm">
             Name
-            <input required value={name} onChange={(e) => setName(e.target.value)} className={field} />
+            <input
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={field}
+            />
           </label>
 
           <div className="grid grid-cols-2 gap-3">
@@ -231,9 +236,7 @@ export function AddProductDialog({
                     <button
                       type="button"
                       aria-label="Remove photo"
-                      onClick={() =>
-                        setImages(imageList.filter((_, idx) => idx !== i).join("\n"))
-                      }
+                      onClick={() => setImages(imageList.filter((_, idx) => idx !== i).join("\n"))}
                       className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-foreground text-background"
                     >
                       <X className="h-3 w-3" />

@@ -102,7 +102,6 @@ export function ProductCard({ product }: { product: Product }) {
             )}
           </div>
 
-
           <div className="absolute inset-x-3 bottom-3 flex translate-y-2 gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             {isAdmin && hidden ? (
               <button
@@ -163,9 +162,7 @@ export function ProductCard({ product }: { product: Product }) {
       </div>
 
       <QuickViewDialog product={product} open={quickOpen} onOpenChange={setQuickOpen} />
-      {isAdmin && (
-        <AddProductDialog open={editOpen} onOpenChange={setEditOpen} product={product} />
-      )}
+      {isAdmin && <AddProductDialog open={editOpen} onOpenChange={setEditOpen} product={product} />}
     </>
   );
 }

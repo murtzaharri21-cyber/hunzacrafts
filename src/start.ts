@@ -21,7 +21,8 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
 // Middleware to separate admin routes from the main site.
 // If ADMIN_URL or VITE_ADMIN_URL is set, requests to /admin* will be redirected there.
 // Otherwise, /admin requests return 404 Not Found.
-const adminRedirectMiddleware = createMiddleware().server(async ({ next, req }) => {
+const adminRedirectMiddleware = createMiddleware().server(async (ctx: any) => {
+  const { next, req } = ctx;
   try {
     const url = new URL(req.url);
     if (url.pathname.startsWith("/admin")) {

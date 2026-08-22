@@ -89,14 +89,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Hunza & Co. — Authentic Products from the Heart of Hunza" },
       {
         property: "og:description",
-        content: "Discover sun-dried apricots, wild honey, handwoven shawls and organic products sourced directly from the farmers and artisans of Hunza Valley.",
+        content:
+          "Discover sun-dried apricots, wild honey, handwoven shawls and organic products sourced directly from the farmers and artisans of Hunza Valley.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Hunza & Co. — Authentic Products from the Heart of Hunza" },
-      { name: "twitter:description", content: "Discover sun-dried apricots, wild honey, handwoven shawls and organic products sourced directly from the farmers and artisans of Hunza Valley." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c1bc1436-39f4-4880-9eba-60eabc96bcbb" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c1bc1436-39f4-4880-9eba-60eabc96bcbb" },
+      {
+        name: "twitter:title",
+        content: "Hunza & Co. — Authentic Products from the Heart of Hunza",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Discover sun-dried apricots, wild honey, handwoven shawls and organic products sourced directly from the farmers and artisans of Hunza Valley.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c1bc1436-39f4-4880-9eba-60eabc96bcbb",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/c1bc1436-39f4-4880-9eba-60eabc96bcbb",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -153,14 +169,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AdminProvider>
         <SiteContentProvider>
-        <WishlistProvider>
-          <CartProvider>
-            <Outlet />
-          </CartProvider>
-        </WishlistProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <Outlet />
+            </CartProvider>
+          </WishlistProvider>
         </SiteContentProvider>
       </AdminProvider>
     </QueryClientProvider>
   );
 }
-

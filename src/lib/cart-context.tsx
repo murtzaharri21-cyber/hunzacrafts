@@ -53,9 +53,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setItems((prev) => {
           const existing = prev.find((i) => i.productId === productId);
           if (existing)
-            return prev.map((i) =>
-              i.productId === productId ? { ...i, qty: i.qty + qty } : i,
-            );
+            return prev.map((i) => (i.productId === productId ? { ...i, qty: i.qty + qty } : i));
           return [...prev, { productId, qty }];
         }),
       remove: (productId) => setItems((prev) => prev.filter((i) => i.productId !== productId)),

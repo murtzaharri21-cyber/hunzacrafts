@@ -117,7 +117,8 @@ function Home() {
         </div>
         <div className="mt-10 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {CATEGORIES.slice(0, 4).map((c) => {
-            const categoryImage = allProducts.find((p) => p.category === c.value)?.images[0] ?? heroImg;
+            const categoryImage =
+              allProducts.find((p) => p.category === c.value)?.images[0] ?? heroImg;
             return (
               <Link
                 key={c.value}
@@ -146,7 +147,9 @@ function Home() {
       <section className="container-x pb-20 md:pb-28">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Loved by many</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Loved by many
+            </div>
             <h2 className="mt-2 font-display text-3xl md:text-4xl">Best Selling Products</h2>
           </div>
           <Link
@@ -168,7 +171,9 @@ function Home() {
         <section className="container-x pb-20 md:pb-28">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-widest text-muted-foreground">Fresh in</div>
+              <div className="text-xs uppercase tracking-widest text-muted-foreground">
+                Fresh in
+              </div>
               <h2 className="mt-2 font-display text-3xl md:text-4xl">New Arrivals</h2>
             </div>
             <Link
@@ -190,18 +195,39 @@ function Home() {
       <section className="bg-secondary/40 py-20 md:py-28">
         <div className="container-x">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Why Choose Us</div>
-            <h2 className="mt-2 font-display text-3xl md:text-4xl">Slow-made, sourced with intention</h2>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Why Choose Us
+            </div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl">
+              Slow-made, sourced with intention
+            </h2>
             <p className="mt-4 text-muted-foreground">
-              Every product is traceable to the family or workshop that made it — never mass-produced, never anonymous.
+              Every product is traceable to the family or workshop that made it — never
+              mass-produced, never anonymous.
             </p>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-4">
             {[
-              { icon: Leaf, title: "100% Organic", body: "Grown without chemicals in the pure Hunza valleys." },
-              { icon: Mountain, title: "Direct from Hunza", body: "Sourced straight from farmers and artisans — no middlemen." },
-              { icon: ShieldCheck, title: "Quality Guaranteed", body: "Small-batch, hand-checked, honestly priced." },
-              { icon: Truck, title: "Nationwide Delivery", body: "Careful packing and reliable shipping across Pakistan." },
+              {
+                icon: Leaf,
+                title: "100% Organic",
+                body: "Grown without chemicals in the pure Hunza valleys.",
+              },
+              {
+                icon: Mountain,
+                title: "Direct from Hunza",
+                body: "Sourced straight from farmers and artisans — no middlemen.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Quality Guaranteed",
+                body: "Small-batch, hand-checked, honestly priced.",
+              },
+              {
+                icon: Truck,
+                title: "Nationwide Delivery",
+                body: "Careful packing and reliable shipping across Pakistan.",
+              },
             ].map(({ icon: Icon, title, body }) => (
               <div key={title} className="rounded-2xl bg-background p-6 shadow-sm">
                 <div className="grid h-10 w-10 place-items-center rounded-full bg-accent/10 text-accent">
@@ -219,7 +245,9 @@ function Home() {
       <section className="container-x py-20 md:py-28">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Handpicked</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Handpicked
+            </div>
             <h2 className="mt-2 font-display text-3xl md:text-4xl">Featured</h2>
           </div>
         </div>
@@ -242,10 +270,17 @@ function Home() {
             />
           </div>
           <div>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">About Hunza</div>
-            <h2 className="mt-2 font-display text-3xl md:text-4xl">A valley where tradition and taste meet</h2>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              About Hunza
+            </div>
+            <h2 className="mt-2 font-display text-3xl md:text-4xl">
+              A valley where tradition and taste meet
+            </h2>
             <p className="mt-5 text-muted-foreground">
-              Hidden between the peaks of the Karakoram, Hunza is a place where orchards have grown for generations and craft is passed down by hand. Our work is to bring that quiet, careful way of making to your home — while ensuring fair value returns to the families we source from.
+              Hidden between the peaks of the Karakoram, Hunza is a place where orchards have grown
+              for generations and craft is passed down by hand. Our work is to bring that quiet,
+              careful way of making to your home — while ensuring fair value returns to the families
+              we source from.
             </p>
             <div className="mt-8 flex gap-3">
               <Link
@@ -263,14 +298,25 @@ function Home() {
       <section className="bg-secondary/40 py-20 md:py-28">
         <div className="container-x">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">Kind Words</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              Kind Words
+            </div>
             <h2 className="mt-2 font-display text-3xl md:text-4xl">What our customers say</h2>
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {[
-              { q: "The honey is unlike anything I've tasted — floral, deep, and clearly real.", n: "Ayesha, Karachi" },
-              { q: "You can taste the sunshine in the apricots. My kids finish a pack in a day.", n: "Bilal, Lahore" },
-              { q: "The wool shawl feels heirloom. Beautifully packed, beautifully made.", n: "Sara, Islamabad" },
+              {
+                q: "The honey is unlike anything I've tasted — floral, deep, and clearly real.",
+                n: "Ayesha, Karachi",
+              },
+              {
+                q: "You can taste the sunshine in the apricots. My kids finish a pack in a day.",
+                n: "Bilal, Lahore",
+              },
+              {
+                q: "The wool shawl feels heirloom. Beautifully packed, beautifully made.",
+                n: "Sara, Islamabad",
+              },
             ].map((t) => (
               <figure key={t.n} className="rounded-2xl bg-background p-8 shadow-sm">
                 <blockquote className="font-display text-lg leading-snug">“{t.q}”</blockquote>
@@ -287,7 +333,8 @@ function Home() {
           <div className="text-center">
             <h2 className="font-display text-3xl md:text-4xl">Join the harvest list</h2>
             <p className="mx-auto mt-3 max-w-lg text-sm text-primary-foreground/80">
-              Occasional letters with new harvests, artisan stories and small-batch releases. No spam — ever.
+              Occasional letters with new harvests, artisan stories and small-batch releases. No
+              spam — ever.
             </p>
             <form
               onSubmit={(e) => e.preventDefault()}
@@ -311,7 +358,9 @@ function Home() {
       <section className="container-x pb-24">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-widest text-muted-foreground">@hunzaandco</div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              @hunzaandco
+            </div>
             <h2 className="mt-2 font-display text-3xl md:text-4xl">From our journal</h2>
           </div>
         </div>

@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LogIn, LogOut, Package, Plus, ScrollText, Settings, ShieldCheck, Store, Undo2 } from "lucide-react";
+import {
+  LogIn,
+  LogOut,
+  Package,
+  Plus,
+  ScrollText,
+  Settings,
+  ShieldCheck,
+  Store,
+  Undo2,
+} from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { useAdmin } from "@/lib/admin-context";
 import { isSupabaseConfigured, supabaseConfig } from "@/integrations/supabase/client";
@@ -9,10 +19,7 @@ import { AddProductDialog } from "@/components/AddProductDialog";
 export const Route = createFileRoute("/admin/")({
   ssr: false,
   head: () => ({
-    meta: [
-      { title: "Admin Portal — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin Portal — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   component: AdminDashboard,
 });
@@ -44,32 +51,51 @@ function AdminDashboard() {
             <p className="mt-2 text-sm text-muted-foreground">
               Sign in to access the storefront admin tools.
             </p>
-            <a href="/auth" className="mt-6 inline-flex rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:bg-foreground/90">
+            <a
+              href="/auth"
+              className="mt-6 inline-flex rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:bg-foreground/90"
+            >
               Sign in as admin
             </a>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            <Link to="/admin" className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40">
+            <Link
+              to="/admin"
+              className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40"
+            >
               <div className="flex items-center gap-3">
                 <Package className="h-5 w-5" />
                 <h3 className="font-medium">Catalog</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">Review products, hide items, and edit catalog details.</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Review products, hide items, and edit catalog details.
+              </p>
             </Link>
-            <Link to="/admin/audit-log" className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40">
+            <Link
+              to="/admin/audit-log"
+              className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40"
+            >
               <div className="flex items-center gap-3">
                 <ScrollText className="h-5 w-5" />
                 <h3 className="font-medium">Audit log</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">Track catalog changes and restore items when needed.</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Track catalog changes and restore items when needed.
+              </p>
             </Link>
-            <Link to="/admin/orders" className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40">
+            <Link
+              to="/admin/orders"
+              className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40"
+            >
               <div className="flex items-center gap-3">
                 <Store className="h-5 w-5" />
                 <h3 className="font-medium">Order tracking</h3>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">Monitor customer orders and update fulfillment status from a dedicated admin-only area.</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Monitor customer orders and update fulfillment status from a dedicated admin-only
+                area.
+              </p>
             </Link>
           </div>
         )}

@@ -9,10 +9,14 @@ export const Route = createFileRoute("/about")({
       { title: "About — Hunza & Co." },
       {
         name: "description",
-        content: "The story of Hunza — its culture, organic farming, traditional craftsmanship, and the families we work with.",
+        content:
+          "The story of Hunza — its culture, organic farming, traditional craftsmanship, and the families we work with.",
       },
       { property: "og:title", content: "About Hunza & Co." },
-      { property: "og:description", content: "The story behind our sourcing, our valleys, and the families we work with." },
+      {
+        property: "og:description",
+        content: "The story behind our sourcing, our valleys, and the families we work with.",
+      },
     ],
     links: [{ rel: "canonical", href: "/about" }],
   }),
@@ -38,13 +42,19 @@ function AboutPage() {
       <section className="container-x grid gap-10 py-20 md:grid-cols-2 md:gap-16 md:py-28">
         <div className="prose prose-neutral max-w-none text-muted-foreground">
           <p className="text-lg leading-relaxed text-foreground">
-            Hunza & Co. began with a simple idea: connect the world with the extraordinary food and craft of Hunza — while making sure the families who grow and make these products share fairly in the value.
+            Hunza & Co. began with a simple idea: connect the world with the extraordinary food and
+            craft of Hunza — while making sure the families who grow and make these products share
+            fairly in the value.
           </p>
           <p className="mt-6 leading-relaxed">
-            Hunza sits high in the Karakoram, surrounded by 7,000-metre peaks. For centuries, its people have farmed apricots, walnuts and mulberries on terraced slopes, and woven wool caps and shawls beside wood-fired stoves. Everything is slow, seasonal, and deeply careful.
+            Hunza sits high in the Karakoram, surrounded by 7,000-metre peaks. For centuries, its
+            people have farmed apricots, walnuts and mulberries on terraced slopes, and woven wool
+            caps and shawls beside wood-fired stoves. Everything is slow, seasonal, and deeply
+            careful.
           </p>
           <p className="mt-6 leading-relaxed">
-            We work directly with growers and artisan collectives — no middlemen, no anonymous supply chains. Every product is traceable to the family or workshop that made it.
+            We work directly with growers and artisan collectives — no middlemen, no anonymous
+            supply chains. Every product is traceable to the family or workshop that made it.
           </p>
         </div>
         <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-muted">
@@ -57,12 +67,30 @@ function AboutPage() {
           <h2 className="max-w-2xl font-display text-3xl md:text-4xl">What we stand for</h2>
           <div className="mt-12 grid gap-8 md:grid-cols-3">
             {[
-              { t: "Rich culture", b: "We celebrate the traditions and languages that have shaped Hunza for centuries." },
-              { t: "Organic farming", b: "Grown without chemicals in glacial water and mountain air." },
-              { t: "Traditional craft", b: "Weaving, knitting and woodwork done by hand, the way it's always been done." },
-              { t: "Local families", b: "Fair, direct payments so making a living from craft is possible again." },
-              { t: "Sustainable sourcing", b: "Small batches, reusable packaging, and shipping we can be proud of." },
-              { t: "Honest pricing", b: "We show you the value — no marketing tricks, no inflated tags." },
+              {
+                t: "Rich culture",
+                b: "We celebrate the traditions and languages that have shaped Hunza for centuries.",
+              },
+              {
+                t: "Organic farming",
+                b: "Grown without chemicals in glacial water and mountain air.",
+              },
+              {
+                t: "Traditional craft",
+                b: "Weaving, knitting and woodwork done by hand, the way it's always been done.",
+              },
+              {
+                t: "Local families",
+                b: "Fair, direct payments so making a living from craft is possible again.",
+              },
+              {
+                t: "Sustainable sourcing",
+                b: "Small batches, reusable packaging, and shipping we can be proud of.",
+              },
+              {
+                t: "Honest pricing",
+                b: "We show you the value — no marketing tricks, no inflated tags.",
+              },
             ].map((v) => (
               <div key={v.t}>
                 <h3 className="font-display text-xl">{v.t}</h3>

@@ -52,10 +52,7 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/admin/orders")({
   ssr: false,
   head: () => ({
-    meta: [
-      { title: "Order Tracking — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Order Tracking — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   component: OrdersPage,
 });
@@ -111,11 +108,27 @@ const STATUS_CONFIG: Record<
   OrderStatus,
   { label: string; badgeClass: string; Icon: React.ComponentType<{ className?: string }> }
 > = {
-  pending:    { label: "Pending",    badgeClass: "bg-amber-50 text-amber-700 border-amber-200",   Icon: Clock },
-  processing: { label: "Processing", badgeClass: "bg-blue-50 text-blue-700 border-blue-200",      Icon: Package },
-  shipped:    { label: "Shipped",    badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200", Icon: Truck },
-  delivered:  { label: "Delivered",  badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200", Icon: CheckCircle },
-  cancelled:  { label: "Cancelled",  badgeClass: "bg-red-50 text-red-600 border-red-200",          Icon: X },
+  pending: {
+    label: "Pending",
+    badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+    Icon: Clock,
+  },
+  processing: {
+    label: "Processing",
+    badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
+    Icon: Package,
+  },
+  shipped: {
+    label: "Shipped",
+    badgeClass: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    Icon: Truck,
+  },
+  delivered: {
+    label: "Delivered",
+    badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    Icon: CheckCircle,
+  },
+  cancelled: { label: "Cancelled", badgeClass: "bg-red-50 text-red-600 border-red-200", Icon: X },
 };
 
 const ALL_STATUSES = Object.keys(STATUS_CONFIG) as OrderStatus[];
@@ -128,7 +141,11 @@ function getWhatsAppLink(phone?: string | null) {
   if (!phone) return null;
   const digits = phone.replace(/\D/g, "");
   if (!digits) return null;
-  const normalized = digits.startsWith("0") ? `92${digits.slice(1)}` : digits.startsWith("92") ? digits : digits;
+  const normalized = digits.startsWith("0")
+    ? `92${digits.slice(1)}`
+    : digits.startsWith("92")
+      ? digits
+      : digits;
   return `https://wa.me/${normalized}`;
 }
 
@@ -228,10 +245,7 @@ function OrderDetailSheet({
       <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-[520px]">
         <SheetHeader className="border-b border-border px-6 pb-4 pt-6">
           <SheetTitle className="text-base">
-            Order{" "}
-            <span className="font-mono text-muted-foreground">
-              #{order.order_id}
-            </span>
+            Order <span className="font-mono text-muted-foreground">#{order.order_id}</span>
           </SheetTitle>
           <SheetDescription className="text-sm text-muted-foreground">
             Placed {format(new Date(order.created_at), "dd MMM yyyy · HH:mm")}
@@ -240,7 +254,6 @@ function OrderDetailSheet({
 
         <ScrollArea className="flex-1">
           <div className="space-y-6 px-6 py-5">
-
             {/* Status panel */}
             <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-4">
               <div className="flex items-center justify-between">
@@ -276,11 +289,7 @@ function OrderDetailSheet({
                   onChange={(e) => setAdminNotes(e.target.value)}
                 />
               </div>
-              <Button
-                className="w-full"
-                onClick={handleSave}
-                disabled={saving}
-              >
+              <Button className="w-full" onClick={handleSave} disabled={saving}>
                 {saving ? "Saving…" : "Save Changes"}
               </Button>
             </div>
@@ -358,9 +367,7 @@ function OrderDetailSheet({
                           </p>
                         </div>
                         {item.line_total != null && (
-                          <p className="shrink-0 text-sm font-semibold">
-                            {pkr(item.line_total)}
-                          </p>
+                          <p className="shrink-0 text-sm font-semibold">{pkr(item.line_total)}</p>
                         )}
                       </div>
                     ))}
@@ -460,7 +467,11 @@ function OrdersPage() {
         if (!active) return;
         if (err) {
           const msg = err.message ?? "";
-          if (msg.includes("Invalid API key") || msg.includes("JWT") || msg.includes("Unauthorized")) {
+          if (
+            msg.includes("Invalid API key") ||
+            msg.includes("JWT") ||
+            msg.includes("Unauthorized")
+          ) {
             setOrders([]);
             setTotal(0);
             return;
@@ -484,7 +495,9 @@ function OrdersPage() {
         if (active) setLoading(false);
       }
     })();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [isAdmin, page, search]);
 
   const filtered = useMemo(
@@ -498,9 +511,10 @@ function OrdersPage() {
   const stats = useMemo(
     () => ({
       total: total ?? orders.length,
-      pending:   orders.filter((o) => (o.status ?? "pending") === "pending").length,
-      inProgress: orders.filter((o) => ["processing", "shipped"].includes(o.status ?? "pending")).length,
-      delivered:  orders.filter((o) => (o.status ?? "pending") === "delivered").length,
+      pending: orders.filter((o) => (o.status ?? "pending") === "pending").length,
+      inProgress: orders.filter((o) => ["processing", "shipped"].includes(o.status ?? "pending"))
+        .length,
+      delivered: orders.filter((o) => (o.status ?? "pending") === "delivered").length,
     }),
     [orders, total],
   );
@@ -517,7 +531,9 @@ function OrdersPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === id ? { ...o, status, admin_notes: adminNotes } : o)),
       );
-      setSelected((prev) => (prev?.id === id ? { ...prev, status, admin_notes: adminNotes } : prev));
+      setSelected((prev) =>
+        prev?.id === id ? { ...prev, status, admin_notes: adminNotes } : prev,
+      );
       toast.success("Order updated");
     } catch (e) {
       toast.error("Failed to update order");
@@ -552,10 +568,30 @@ function OrdersPage() {
           <>
             {/* Stats */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <StatCard label="Total orders"  value={stats.total}      Icon={ShoppingBag}   accent="bg-muted text-muted-foreground" />
-              <StatCard label="Pending"       value={stats.pending}    Icon={Clock}         accent="bg-amber-50 text-amber-600" />
-              <StatCard label="In progress"   value={stats.inProgress} Icon={Truck}         accent="bg-blue-50 text-blue-600" />
-              <StatCard label="Delivered"     value={stats.delivered}  Icon={CheckCircle}   accent="bg-emerald-50 text-emerald-600" />
+              <StatCard
+                label="Total orders"
+                value={stats.total}
+                Icon={ShoppingBag}
+                accent="bg-muted text-muted-foreground"
+              />
+              <StatCard
+                label="Pending"
+                value={stats.pending}
+                Icon={Clock}
+                accent="bg-amber-50 text-amber-600"
+              />
+              <StatCard
+                label="In progress"
+                value={stats.inProgress}
+                Icon={Truck}
+                accent="bg-blue-50 text-blue-600"
+              />
+              <StatCard
+                label="Delivered"
+                value={stats.delivered}
+                Icon={CheckCircle}
+                accent="bg-emerald-50 text-emerald-600"
+              />
             </div>
 
             {/* Filter bar */}
@@ -591,7 +627,10 @@ function OrdersPage() {
                   className="pl-8 text-sm"
                   placeholder="Search by order ID or email…"
                   value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
                 />
               </div>
             </div>
@@ -606,12 +645,24 @@ function OrdersPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50 hover:bg-muted/50">
-                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Order ID</TableHead>
-                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Customer</TableHead>
-                      <TableHead className="hidden text-xs font-semibold uppercase tracking-wider text-muted-foreground md:table-cell">Total</TableHead>
-                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</TableHead>
-                      <TableHead className="hidden text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:table-cell">Date</TableHead>
-                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">WhatsApp</TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Order ID
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Customer
+                      </TableHead>
+                      <TableHead className="hidden text-xs font-semibold uppercase tracking-wider text-muted-foreground md:table-cell">
+                        Total
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Status
+                      </TableHead>
+                      <TableHead className="hidden text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:table-cell">
+                        Date
+                      </TableHead>
+                      <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        WhatsApp
+                      </TableHead>
                       <TableHead className="w-[52px]" />
                     </TableRow>
                   </TableHeader>
@@ -638,7 +689,10 @@ function OrdersPage() {
                           {(search || statusFilter !== "all") && (
                             <button
                               className="mt-1 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
-                              onClick={() => { setSearch(""); setStatusFilter("all"); }}
+                              onClick={() => {
+                                setSearch("");
+                                setStatusFilter("all");
+                              }}
                             >
                               Clear filters
                             </button>
@@ -658,9 +712,7 @@ function OrdersPage() {
                               {o.order_id}
                             </TableCell>
                             <TableCell>
-                              <p className="text-sm font-medium">
-                                {o.contact?.name ?? "Guest"}
-                              </p>
+                              <p className="text-sm font-medium">{o.contact?.name ?? "Guest"}</p>
                               <p className="text-xs text-muted-foreground">{o.user_email}</p>
                             </TableCell>
                             <TableCell className="hidden text-sm font-medium md:table-cell">
@@ -694,7 +746,10 @@ function OrdersPage() {
                                 variant="ghost"
                                 size="sm"
                                 className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-                                onClick={(e) => { e.stopPropagation(); openDetail(o); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openDetail(o);
+                                }}
                               >
                                 <Eye className="h-3.5 w-3.5" />
                                 <span className="sr-only">View order</span>

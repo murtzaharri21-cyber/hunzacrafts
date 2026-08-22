@@ -20,10 +20,7 @@ function isLocalDemoAdminEnabled() {
 export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
-    meta: [
-      { title: "Admin sign in — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin sign in — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   validateSearch: (s: Record<string, unknown>): Search => ({
     next: typeof s.next === "string" ? s.next : undefined,
@@ -101,14 +98,18 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       if (!(await ensureAdmin())) {
-        setError("This account does not have admin access. Ensure your user ID has the 'admin' role in Supabase.");
+        setError(
+          "This account does not have admin access. Ensure your user ID has the 'admin' role in Supabase.",
+        );
         return;
       }
       navigate({ to: target });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       if (msg.toLowerCase().includes("invalid api key")) {
-        setError("Invalid Supabase API Key. Please verify that VITE_SUPABASE_PUBLISHABLE_KEY in your Vercel Project Settings > Environment Variables is your Supabase 'anon' (public) key, then trigger a Redeploy in Vercel.");
+        setError(
+          "Invalid Supabase API Key. Please verify that VITE_SUPABASE_PUBLISHABLE_KEY in your Vercel Project Settings > Environment Variables is your Supabase 'anon' (public) key, then trigger a Redeploy in Vercel.",
+        );
       } else {
         setError(msg);
       }
@@ -132,8 +133,13 @@ function AuthPage() {
         },
       });
       if (error) {
-        if (error.message.includes("missing OAuth secret") || error.message.includes("Unsupported provider")) {
-          setError("Google OAuth is not configured in Supabase. Please configure the Google Provider in Supabase Dashboard or sign in with Email & Password.");
+        if (
+          error.message.includes("missing OAuth secret") ||
+          error.message.includes("Unsupported provider")
+        ) {
+          setError(
+            "Google OAuth is not configured in Supabase. Please configure the Google Provider in Supabase Dashboard or sign in with Email & Password.",
+          );
         } else {
           setError(error.message);
         }
@@ -148,8 +154,8 @@ function AuthPage() {
       <section className="container-x pt-12 md:pt-16">
         <h1 className="font-display text-4xl md:text-5xl">Admin sign in</h1>
         <p className="mt-3 max-w-lg text-muted-foreground">
-          This area is for store administrators only. Shoppers don&apos;t need an account to
-          browse or order.
+          This area is for store administrators only. Shoppers don&apos;t need an account to browse
+          or order.
         </p>
       </section>
 

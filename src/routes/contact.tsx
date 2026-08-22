@@ -19,9 +19,15 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact — Hunza & Co." },
-      { name: "description", content: "Get in touch with Hunza & Co. — questions, wholesale, or a friendly hello." },
+      {
+        name: "description",
+        content: "Get in touch with Hunza & Co. — questions, wholesale, or a friendly hello.",
+      },
       { property: "og:title", content: "Contact — Hunza & Co." },
-      { property: "og:description", content: "Get in touch with Hunza & Co. — questions, wholesale, or a friendly hello." },
+      {
+        property: "og:description",
+        content: "Get in touch with Hunza & Co. — questions, wholesale, or a friendly hello.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -69,11 +75,18 @@ function ContactPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
               <span className="text-sm">Name</span>
-              <input required className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/40" />
+              <input
+                required
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/40"
+              />
             </label>
             <label className="block">
               <span className="text-sm">Email</span>
-              <input type="email" required className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/40" />
+              <input
+                type="email"
+                required
+                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/40"
+              />
             </label>
           </div>
           <label className="mt-4 block">
@@ -82,7 +95,11 @@ function ContactPage() {
           </label>
           <label className="mt-4 block">
             <span className="text-sm">Message</span>
-            <textarea required rows={6} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/40" />
+            <textarea
+              required
+              rows={6}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground/40"
+            />
           </label>
           <button className="mt-6 rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background hover:bg-foreground/90">
             {sent ? "Message sent — thank you" : "Send Message"}
@@ -95,14 +112,21 @@ function ContactPage() {
               <MapPin className="mt-0.5 h-4 w-4 text-accent" />
               <div>
                 <div className="text-sm font-medium">Visit</div>
-                <div className="text-sm text-muted-foreground">{content.contactAddress1}<br />{content.contactAddress2}</div>
+                <div className="text-sm text-muted-foreground">
+                  {content.contactAddress1}
+                  <br />
+                  {content.contactAddress2}
+                </div>
               </div>
             </div>
             <div className="mt-4 flex items-start gap-3">
               <Mail className="mt-0.5 h-4 w-4 text-accent" />
               <div>
                 <div className="text-sm font-medium">Email</div>
-                <a className="text-sm text-muted-foreground hover:text-foreground" href={`mailto:${content.contactEmail}`}>
+                <a
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                  href={`mailto:${content.contactEmail}`}
+                >
                   {content.contactEmail}
                 </a>
               </div>
@@ -111,7 +135,10 @@ function ContactPage() {
               <Phone className="mt-0.5 h-4 w-4 text-accent" />
               <div>
                 <div className="text-sm font-medium">Call</div>
-                <a className="text-sm text-muted-foreground hover:text-foreground" href={`tel:${content.contactPhone.replace(/\s/g, "")}`}>
+                <a
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                  href={`tel:${content.contactPhone.replace(/\s/g, "")}`}
+                >
                   {content.contactPhone}
                 </a>
               </div>

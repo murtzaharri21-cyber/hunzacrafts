@@ -8,7 +8,13 @@ type SavedOrder = {
   total?: number;
   status?: string;
   created_at?: string;
-  items?: Array<{ name: string; qty?: number; unit_price?: number; line_total?: number; images?: string[] }>;
+  items?: Array<{
+    name: string;
+    qty?: number;
+    unit_price?: number;
+    line_total?: number;
+    images?: string[];
+  }>;
   contact?: { name?: string; email?: string; phone?: string };
   shipping?: { address?: string; city?: string; country?: string };
   payment_method?: string;
@@ -16,10 +22,7 @@ type SavedOrder = {
 
 export const Route = createFileRoute("/order-confirmation")({
   head: () => ({
-    meta: [
-      { title: "Order Confirmed — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Order Confirmed — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   component: OrderPage,
 });
@@ -31,7 +34,8 @@ function OrderPage() {
     if (raw) savedOrder = JSON.parse(raw) as SavedOrder;
   } catch {}
 
-  const orderId = savedOrder?.order_id ?? "HZ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const orderId =
+    savedOrder?.order_id ?? "HZ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
   const items = savedOrder?.items ?? [];
   const total = savedOrder?.total ?? 0;
   const status = savedOrder?.status ?? "pending";
@@ -52,7 +56,9 @@ function OrderPage() {
           <div className="mt-8 rounded-2xl border border-border bg-muted/30 p-4 md:p-5">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Order status</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Order status
+                </p>
                 <p className="mt-2 text-lg font-medium capitalize">{status}</p>
               </div>
               <div className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
@@ -69,17 +75,26 @@ function OrderPage() {
               </div>
               <div className="space-y-3">
                 {items.map((item, index) => (
-                  <div key={`${item.name}-${index}`} className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-3">
+                  <div
+                    key={`${item.name}-${index}`}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-background p-3"
+                  >
                     <div className="flex items-center gap-3 min-w-0">
                       {item.images?.[0] && (
-                        <img src={item.images[0]} alt={item.name} className="h-12 w-12 rounded-xl object-cover" />
+                        <img
+                          src={item.images[0]}
+                          alt={item.name}
+                          className="h-12 w-12 rounded-xl object-cover"
+                        />
                       )}
                       <div className="min-w-0">
                         <p className="truncate font-medium text-foreground">{item.name}</p>
                         <p className="text-xs text-muted-foreground">Qty {item.qty ?? 1}</p>
                       </div>
                     </div>
-                    <p className="text-sm font-medium">PKR {Number(item.line_total ?? item.unit_price ?? 0).toLocaleString("en-PK")}</p>
+                    <p className="text-sm font-medium">
+                      PKR {Number(item.line_total ?? item.unit_price ?? 0).toLocaleString("en-PK")}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -90,20 +105,30 @@ function OrderPage() {
             <div className="rounded-2xl border border-border bg-background p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Customer</p>
               <p className="mt-2 font-medium">{savedOrder?.contact?.name ?? "Customer"}</p>
-              <p className="text-sm text-muted-foreground">{savedOrder?.user_email ?? savedOrder?.contact?.email ?? "Email not provided"}</p>
+              <p className="text-sm text-muted-foreground">
+                {savedOrder?.user_email ?? savedOrder?.contact?.email ?? "Email not provided"}
+              </p>
             </div>
             <div className="rounded-2xl border border-border bg-background p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Payment</p>
               <p className="mt-2 font-medium">{savedOrder?.payment_method ?? "Cash on Delivery"}</p>
-              <p className="text-sm text-muted-foreground">Total: PKR {Number(total).toLocaleString("en-PK")}</p>
+              <p className="text-sm text-muted-foreground">
+                Total: PKR {Number(total).toLocaleString("en-PK")}
+              </p>
             </div>
           </div>
 
           <div className="mt-8 flex justify-center gap-3 flex-wrap">
-            <Link to="/shop" className="rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:bg-foreground/90">
+            <Link
+              to="/shop"
+              className="rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:bg-foreground/90"
+            >
               Keep shopping
             </Link>
-            <Link to="/contact" className="rounded-full border border-border px-5 py-2.5 text-sm hover:bg-muted">
+            <Link
+              to="/contact"
+              className="rounded-full border border-border px-5 py-2.5 text-sm hover:bg-muted"
+            >
               Contact us
             </Link>
           </div>

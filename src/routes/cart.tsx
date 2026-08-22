@@ -6,10 +6,7 @@ import { formatPKR } from "@/lib/products";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
-    meta: [
-      { title: "Cart — Hunza & Co." },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Cart — Hunza & Co." }, { name: "robots", content: "noindex" }],
   }),
   component: CartPage,
 });
@@ -47,7 +44,11 @@ function CartPage() {
                   params={{ slug: product.slug }}
                   className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-muted"
                 >
-                  <img src={product.images[0]} alt={product.name} className="h-full w-full object-cover" />
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
                 </Link>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-4">
@@ -59,19 +60,33 @@ function CartPage() {
                       >
                         {product.name}
                       </Link>
-                      <div className="text-xs text-muted-foreground">{product.category.replace("-", " ")}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {product.category.replace("-", " ")}
+                      </div>
                     </div>
-                    <button onClick={() => remove(product.id)} className="text-muted-foreground hover:text-foreground" aria-label="Remove">
+                    <button
+                      onClick={() => remove(product.id)}
+                      className="text-muted-foreground hover:text-foreground"
+                      aria-label="Remove"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                   <div className="mt-3 flex items-center justify-between">
                     <div className="inline-flex items-center rounded-full border border-border">
-                      <button onClick={() => setQty(product.id, qty - 1)} className="grid h-9 w-9 place-items-center hover:bg-muted" aria-label="Decrease">
+                      <button
+                        onClick={() => setQty(product.id, qty - 1)}
+                        className="grid h-9 w-9 place-items-center hover:bg-muted"
+                        aria-label="Decrease"
+                      >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
                       <span className="w-7 text-center text-sm">{qty}</span>
-                      <button onClick={() => setQty(product.id, qty + 1)} className="grid h-9 w-9 place-items-center hover:bg-muted" aria-label="Increase">
+                      <button
+                        onClick={() => setQty(product.id, qty + 1)}
+                        className="grid h-9 w-9 place-items-center hover:bg-muted"
+                        aria-label="Increase"
+                      >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -85,10 +100,17 @@ function CartPage() {
           <aside className="h-fit rounded-3xl bg-secondary/50 p-6 md:sticky md:top-24">
             <h2 className="font-display text-xl">Order Summary</h2>
             <dl className="mt-6 space-y-3 text-sm">
-              <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{formatPKR(subtotal)}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">Shipping</dt><dd>{shipping === 0 ? "Free" : formatPKR(shipping)}</dd></div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Subtotal</dt>
+                <dd>{formatPKR(subtotal)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-muted-foreground">Shipping</dt>
+                <dd>{shipping === 0 ? "Free" : formatPKR(shipping)}</dd>
+              </div>
               <div className="mt-3 flex justify-between border-t border-border pt-3 text-base font-medium">
-                <dt>Total</dt><dd>{formatPKR(total)}</dd>
+                <dt>Total</dt>
+                <dd>{formatPKR(total)}</dd>
               </div>
             </dl>
             <Link
@@ -97,7 +119,10 @@ function CartPage() {
             >
               Checkout
             </Link>
-            <Link to="/shop" className="mt-3 block text-center text-xs text-muted-foreground hover:text-foreground">
+            <Link
+              to="/shop"
+              className="mt-3 block text-center text-xs text-muted-foreground hover:text-foreground"
+            >
               Continue shopping
             </Link>
           </aside>

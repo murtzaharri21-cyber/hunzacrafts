@@ -16,10 +16,7 @@ export const Route = createFileRoute("/product/$slug")({
   head: ({ loaderData, params }) => {
     if (!loaderData?.product) {
       return {
-        meta: [
-          { title: "Product — Hunza & Co." },
-          { name: "robots", content: "noindex" },
-        ],
+        meta: [{ title: "Product — Hunza & Co." }, { name: "robots", content: "noindex" }],
       };
     }
     const p = loaderData.product;
@@ -46,7 +43,8 @@ export const Route = createFileRoute("/product/$slug")({
               "@type": "Offer",
               price: p.salePrice ?? p.price,
               priceCurrency: "PKR",
-              availability: p.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              availability:
+                p.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
             },
           }),
         },
@@ -58,7 +56,9 @@ export const Route = createFileRoute("/product/$slug")({
     <SiteLayout>
       <div className="container-x py-32 text-center">
         <h1 className="font-display text-3xl">Product not found</h1>
-        <Link to="/shop" className="mt-4 inline-block text-sm underline">Back to shop</Link>
+        <Link to="/shop" className="mt-4 inline-block text-sm underline">
+          Back to shop
+        </Link>
       </div>
     </SiteLayout>
   ),
@@ -99,9 +99,14 @@ function ProductPage() {
     <SiteLayout>
       <div className="container-x pt-8 md:pt-12">
         <nav className="text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-foreground">Home</Link> ·{" "}
-          <Link to="/shop" className="hover:text-foreground">Shop</Link> ·{" "}
-          <span className="text-foreground">{product.name}</span>
+          <Link to="/" className="hover:text-foreground">
+            Home
+          </Link>{" "}
+          ·{" "}
+          <Link to="/shop" className="hover:text-foreground">
+            Shop
+          </Link>{" "}
+          · <span className="text-foreground">{product.name}</span>
         </nav>
       </div>
 
@@ -112,7 +117,10 @@ function ProductPage() {
             className="relative aspect-square overflow-hidden rounded-3xl bg-muted"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
-              setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
+              setZoom({
+                x: ((e.clientX - r.left) / r.width) * 100,
+                y: ((e.clientY - r.top) / r.height) * 100,
+              });
             }}
             onMouseLeave={() => setZoom(null)}
           >
@@ -173,7 +181,9 @@ function ProductPage() {
           <dl className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-secondary/50 p-5 text-sm">
             {product.ingredients && (
               <div className="col-span-2">
-                <dt className="text-xs uppercase tracking-wider text-muted-foreground">Ingredients</dt>
+                <dt className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Ingredients
+                </dt>
                 <dd className="mt-1">{product.ingredients}</dd>
               </div>
             )}
@@ -240,7 +250,10 @@ function ProductPage() {
         <h2 className="font-display text-2xl">Customer Reviews</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {[
-            { n: "Ayesha K.", r: "The best honey I've had. Reminds me of my grandmother's kitchen." },
+            {
+              n: "Ayesha K.",
+              r: "The best honey I've had. Reminds me of my grandmother's kitchen.",
+            },
             { n: "Bilal M.", r: "Fresh apricots, well packed, arrived quickly. Highly recommend." },
             { n: "Sara T.", r: "You can feel the craftsmanship. Beautiful piece." },
           ].map((rv) => (

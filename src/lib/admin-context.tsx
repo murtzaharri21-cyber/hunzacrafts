@@ -71,7 +71,8 @@ function isLocalDemoAdminEnabled() {
 async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { data, error } = await supabase
+    const sb = supabase as any;
+    const { data, error } = await sb
       .from("site_settings")
       .select("value")
       .eq("key", remoteKey)
@@ -86,7 +87,8 @@ async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
 async function saveRemoteAdminState<T>(remoteKey: string, value: T) {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
-    const { error } = await supabase
+    const sb = supabase as any;
+    const { error } = await sb
       .from("site_settings")
       .upsert({ key: remoteKey, value }, { onConflict: "key" });
     if (error) throw error;
@@ -165,7 +167,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
           }
         });
 
-        const channel = supabase
+        const sb = supabase as any;
+        const channel = sb
           .channel("admin-product-sync")
           .on(
             "postgres_changes",
@@ -185,7 +188,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
         cleanup = () => {
           sub.data.subscription.unsubscribe();
-          supabase.removeChannel(channel);
+          sb.removeChannel(channel);
         };
       })
       .catch(() => {});
@@ -211,7 +214,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     void saveRemoteAdminState(REMOTE_KEYS.edits, edits);
   }, [edits, hydrated]);
 
-  const persistCatalogState = (nextHiddenIds: string[], nextCustomProducts: Product[], nextEdits: Record<string, ProductEdit>) => {
+  const persistCatalogState = (
+    nextHiddenIds: string[],
+    nextCustomProducts: Product[],
+    nextEdits: Record<string, ProductEdit>,
+  ) => {
     void saveRemoteAdminState(REMOTE_KEYS.hidden, nextHiddenIds);
     void saveRemoteAdminState(REMOTE_KEYS.custom, nextCustomProducts);
     void saveRemoteAdminState(REMOTE_KEYS.edits, nextEdits);
