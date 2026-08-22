@@ -1,0 +1,3 @@
+chore(deploy): trigger redeploy after auth fix
+
+Triggering Vercel redeploy for branch to pick up auth fallback changes.

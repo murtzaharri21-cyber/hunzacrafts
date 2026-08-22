@@ -1,0 +1,5 @@
+fix(auth): fallback to server /api/check-admin when RPC/DB checks fail
+
+If RPC is ambiguous or DB queries are blocked by RLS, call server endpoint /api/check-admin (uses supabaseAdmin with service_role) to verify admin role after sign-in. This ensures admin pages load after authentication.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
