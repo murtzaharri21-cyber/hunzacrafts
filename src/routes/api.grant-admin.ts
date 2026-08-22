@@ -8,13 +8,45 @@ export const Route = createFileRoute("/api/grant-admin")({
         try {
           const req: Request = ctx?.req ?? ctx?.request ?? (ctx?.event?.request as Request) ?? (globalThis as any).request;
           const body = req ? await req.json().catch(() => ({})) : (ctx?.body ?? ctx?.json ?? {});
-          const userId = (body && body.user_id) || undefined;
+          let userId = (body && body.user_id) || undefined;
           const email = (body && body.email) || undefined;
-          if (!userId || !email) {
+          if (!userId && !email) {
             return new Response(JSON.stringify({ error: 'missing user_id or email' }), {
               status: 400,
               headers: { 'Content-Type': 'application/json' },
             });
+          }
+
+          // If user_id not provided, try to resolve it from auth.users by email using service role client
+          if (!userId && email) {
+            try {
+              const { data: found, error: findErr } = await (supabaseAdmin as any)
+                .from('auth.users')
+                .select('id')
+                .eq('email', String(email).toLowerCase())
+                .limit(1);
+              if (findErr) {
+                // Some Supabase setups may require different access; ignore find error and proceed to deny
+                return new Response(JSON.stringify({ error: 'failed to look up user id', detail: String(findErr.message ?? findErr) }), {
+                  status: 500,
+                  headers: { 'Content-Type': 'application/json' },
+                });
+              }
+              if (Array.isArray(found) && found.length > 0) {
+                userId = found[0].id;
+              } else {
+                // no user record found yet – it's possible the user just signed up and the auth record isn't present; return 404 so client can retry
+                return new Response(JSON.stringify({ granted: false, reason: 'user not found' }), {
+                  status: 404,
+                  headers: { 'Content-Type': 'application/json' },
+                });
+              }
+            } catch (e) {
+              return new Response(JSON.stringify({ error: String(e) }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' },
+              });
+            }
           }
 
           // Read allowed admin emails from env (support both VITE_ADMIN_EMAILS and ADMIN_EMAILS)
