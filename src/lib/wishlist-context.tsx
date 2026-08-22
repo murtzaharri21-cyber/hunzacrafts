@@ -18,7 +18,11 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setIds(JSON.parse(raw));
-    } catch {}
+    } catch (e) {
+      // Ignore malformed or inaccessible localStorage entries during hydration
+
+      console.warn("Failed to hydrate wishlist from localStorage", e);
+    }
     setHydrated(true);
   }, []);
 

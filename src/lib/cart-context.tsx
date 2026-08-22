@@ -27,7 +27,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setItems(JSON.parse(raw));
-    } catch {}
+    } catch (e) {
+      // Ignore malformed or inaccessible localStorage entries during hydration
+      // (e.g., private mode or corrupted data). This is non-fatal for the cart.
+
+      console.warn("Failed to hydrate cart from localStorage", e);
+    }
     setHydrated(true);
   }, []);
 

@@ -32,7 +32,11 @@ function OrderPage() {
   try {
     const raw = localStorage.getItem("hunza:last-order");
     if (raw) savedOrder = JSON.parse(raw) as SavedOrder;
-  } catch {}
+  } catch (e) {
+    // Ignore parse errors or inaccessible localStorage; show a fallback order instead
+
+    console.warn("Failed to read last order from localStorage", e);
+  }
 
   const orderId =
     savedOrder?.order_id ?? "HZ-" + Math.random().toString(36).slice(2, 8).toUpperCase();

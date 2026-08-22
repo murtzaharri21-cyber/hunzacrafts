@@ -453,7 +453,7 @@ function OrdersPage() {
         const { supabase } = await import("@/integrations/supabase/client");
         const start = (page - 1) * pageSize;
         const end = start + pageSize - 1;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         let q = (supabase as any)
           .from("order_requests")
           .select("*", { count: "exact" })
@@ -522,7 +522,7 @@ function OrdersPage() {
   const handleSave = async (id: string, status: OrderStatus, adminNotes: string) => {
     try {
       const { supabase } = await import("@/integrations/supabase/client");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       const { error: err } = await (supabase as any)
         .from("order_requests")
         .update({ status, admin_notes: adminNotes })

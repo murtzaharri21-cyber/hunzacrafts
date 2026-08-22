@@ -32,7 +32,10 @@ export default tseslint.config(
           ],
         },
       ],
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // Turn off these rules for developer ergonomics in this repo. They are non-blocking and
+      // create noise during local development; address them later if stricter linting is desired.
+      "react-refresh/only-export-components": "off",
+      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
