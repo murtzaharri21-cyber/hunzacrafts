@@ -25,6 +25,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAuditLogRouteImport } from './routes/admin.audit-log'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
+import { Route as AdminSiteSettingsRouteImport } from './routes/admin.site-settings'
 import { Route as ApiCheckAdminRouteImport } from './routes/api.check-admin'
 import { Route as ApiGrantAdminRouteImport } from './routes/api.grant-admin'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -116,6 +117,11 @@ const AdminOrdersRoute = AdminOrdersRouteImport.update({
   path: '/admin/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSiteSettingsRoute = AdminSiteSettingsRouteImport.update({
+  id: '/admin/site-settings',
+  path: '/admin/site-settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCheckAdminRoute = ApiCheckAdminRouteImport.update({
   id: '/api/check-admin',
   path: '/api/check-admin',
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/admin/site-settings': typeof AdminSiteSettingsRoute
   '/api/check-admin': typeof ApiCheckAdminRoute
   '/api/grant-admin': typeof ApiGrantAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/admin/site-settings': typeof AdminSiteSettingsRoute
   '/api/check-admin': typeof ApiCheckAdminRoute
   '/api/grant-admin': typeof ApiGrantAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -227,6 +235,7 @@ export interface FileRoutesById {
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/admin/site-settings': typeof AdminSiteSettingsRoute
   '/api/check-admin': typeof ApiCheckAdminRoute
   '/api/grant-admin': typeof ApiGrantAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -255,6 +264,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit-log'
     | '/admin/orders'
+    | '/admin/site-settings'
     | '/api/check-admin'
     | '/api/grant-admin'
     | '/auth/callback'
@@ -281,6 +291,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit-log'
     | '/admin/orders'
+    | '/admin/site-settings'
     | '/api/check-admin'
     | '/api/grant-admin'
     | '/auth/callback'
@@ -307,6 +318,7 @@ export interface FileRouteTypes {
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit-log'
     | '/admin/orders'
+    | '/admin/site-settings'
     | '/api/check-admin'
     | '/api/grant-admin'
     | '/auth/callback'
@@ -334,6 +346,7 @@ export interface RootRouteChildren {
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditLogRoute: typeof AdminAuditLogRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
+  AdminSiteSettingsRoute: typeof AdminSiteSettingsRoute
   ApiCheckAdminRoute: typeof ApiCheckAdminRoute
   ApiGrantAdminRoute: typeof ApiGrantAdminRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -458,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/site-settings': {
+      id: '/admin/site-settings'
+      path: '/admin/site-settings'
+      fullPath: '/admin/site-settings'
+      preLoaderRoute: typeof AdminSiteSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/check-admin': {
       id: '/api/check-admin'
       path: '/api/check-admin'
@@ -544,6 +564,7 @@ const rootRouteChildren: RootRouteChildren = {
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminAuditLogRoute: AdminAuditLogRoute,
   AdminOrdersRoute: AdminOrdersRoute,
+  AdminSiteSettingsRoute: AdminSiteSettingsRoute,
   ApiCheckAdminRoute: ApiCheckAdminRoute,
   ApiGrantAdminRoute: ApiGrantAdminRoute,
   ProductSlugRoute: ProductSlugRoute,
