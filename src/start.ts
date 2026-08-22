@@ -28,10 +28,24 @@ const adminRedirectMiddleware = createMiddleware().server(async (ctx: any) => {
     if (url.pathname.startsWith("/admin")) {
       const adminUrl = process.env.ADMIN_URL || process.env.VITE_ADMIN_URL;
       if (adminUrl) {
-        // Preserve the remainder of the path after /admin when redirecting
-        const remainder = url.pathname.replace(/^\/admin/, "") || "/";
-        const target = adminUrl.replace(/\/$/, "") + remainder + url.search;
-        return Response.redirect(target, 302);
+        try {
+          // Only redirect when ADMIN_URL is a different origin than the current request.
+          // This allows serving built-in /admin routes when ADMIN_URL points to the same origin.
+          const requestOrigin = new URL(req.url).origin;
+          const adminOrigin = new URL(adminUrl).origin;
+          if (adminOrigin !== requestOrigin) {
+            // Preserve the remainder of the path after /admin when redirecting
+            const remainder = url.pathname.replace(/^\/admin/, "") || "/";
+            const target = adminUrl.replace(/\/$/, "") + remainder + url.search;
+            return Response.redirect(target, 302);
+          }
+          // If origins match, fall through so the local /admin routes are served by this app.
+        } catch (e) {
+          // If parsing fails for any reason, fall back to original behavior and redirect.
+          const remainder = url.pathname.replace(/^\/admin/, "") || "/";
+          const target = adminUrl.replace(/\/$/, "") + remainder + url.search;
+          return Response.redirect(target, 302);
+        }
       }
 
       return new Response("Not Found", {
