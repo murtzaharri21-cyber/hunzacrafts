@@ -127,11 +127,21 @@ export function Footer() {
             <button
               onClick={() => {
                 try {
-                  // Set a short-lived allow-cookie for admin entry
+                  // Set a short-lived allow-cookie for admin entry and ensure it's committed before navigation.
                   document.cookie = 'hunza_allow_admin=1; path=/; max-age=' + 60 * 5; // 5 minutes
-                } catch {}
-                // Redirect to auth flow which will validate admin and then send to /admin
-                window.location.href = '/auth?next=' + encodeURIComponent('/admin');
+                  // Use a short delay to ensure the cookie is written in all browsers before navigation.
+                  setTimeout(() => {
+                    try {
+                      window.location.assign('/auth?next=' + encodeURIComponent('/admin'));
+                    } catch (e) {
+                      window.location.href = '/auth?next=' + encodeURIComponent('/admin');
+                    }
+                  }, 50);
+                } catch (e) {
+                  try {
+                    window.location.href = '/auth?next=' + encodeURIComponent('/admin');
+                  } catch {}
+                }
               }}
               className="underline hover:text-foreground"
             >
