@@ -183,7 +183,19 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                 return;
               }
             } catch (e) {
-              // ignore and fallback to email list
+              // ignore and continue to DB fallback
+            }
+
+            // DB fallback: query the user_roles table directly (useful when RPC is overloaded or ambiguous)
+            try {
+              const sb = supabase as any;
+              const { data: roles, error: rolesErr } = await sb.from("user_roles").select("role").eq("user_id", user.id);
+              if (!rolesErr && Array.isArray(roles) && roles.some((r: any) => String(r.role) === "admin")) {
+                setIsAdmin(true);
+                return;
+              }
+            } catch (e) {
+              // ignore and fallback to emails
             }
 
             // Fallback: check env-provided admin emails

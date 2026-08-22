@@ -63,12 +63,25 @@ function Callback() {
         }
 
         // Verify admin access (admin roles are assigned server-side only).
+        // Try RPC first
         try {
           const { data: ok, error: rpcError } = await (supabase as any).rpc('has_role', {
             _user_id: data.user.id,
             _role: 'admin',
           });
           if (!rpcError && ok === true) {
+            navigate({ to: target });
+            return;
+          }
+        } catch (e) {
+          // ignore and continue to DB fallback
+        }
+
+        // DB fallback: check user_roles table directly
+        try {
+          const sb = supabase as any;
+          const { data: roles, error: rolesErr } = await sb.from('user_roles').select('role').eq('user_id', data.user.id);
+          if (!rolesErr && Array.isArray(roles) && roles.some((r: any) => String(r.role) === 'admin')) {
             navigate({ to: target });
             return;
           }

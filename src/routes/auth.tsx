@@ -58,7 +58,16 @@ async function ensureAdmin(): Promise<boolean> {
       });
       if (!rpcError && ok === true) return true;
     } catch (rpcErr) {
-      // ignore and fallback to email list
+      // ignore and try DB fallback
+    }
+
+    // DB fallback: query user_roles directly (useful when RPC is ambiguous)
+    try {
+      const sb = supabase as any;
+      const { data: roles, error: rolesErr } = await sb.from("user_roles").select("role").eq("user_id", user.id);
+      if (!rolesErr && Array.isArray(roles) && roles.some((r: any) => String(r.role) === "admin")) return true;
+    } catch (e) {
+      // ignore and fallback to env
     }
 
     // Fallback: allow admin by email list provided in env (VITE_ADMIN_EMAILS or ADMIN_EMAILS)
