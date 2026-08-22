@@ -97,6 +97,18 @@ function AdminDashboard() {
                 area.
               </p>
             </Link>
+            <Link
+              to="/admin/site"
+              className="rounded-3xl border border-border p-6 transition-colors hover:bg-muted/40"
+            >
+              <div className="flex items-center gap-3">
+                <Settings className="h-5 w-5" />
+                <h3 className="font-medium">Site content</h3>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Edit hero, headings, contact details and footer text visible to customers.
+              </p>
+            </Link>
           </div>
         )}
       </section>

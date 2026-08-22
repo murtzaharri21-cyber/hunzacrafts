@@ -55,7 +55,7 @@ async function loadRemoteSiteContent(): Promise<Partial<SiteContent> | null> {
   }
 }
 
-async function saveRemoteSiteContent(next: SiteContent) {
+export async function saveRemoteSiteContent(next: SiteContent) {
   try {
     const { supabase } = await import("@/integrations/supabase/client");
     const sb = supabase as any;
