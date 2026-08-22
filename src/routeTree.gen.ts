@@ -26,6 +26,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAuditLogRouteImport } from './routes/admin.audit-log'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as ApiCheckAdminRouteImport } from './routes/api.check-admin'
+import { Route as ApiGrantAdminRouteImport } from './routes/api.grant-admin'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -118,6 +119,11 @@ const ApiCheckAdminRoute = ApiCheckAdminRouteImport.update({
   path: '/api/check-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGrantAdminRoute = ApiGrantAdminRouteImport.update({
+  id: '/api/grant-admin',
+  path: '/api/grant-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/callback',
   path: '/callback',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/api/check-admin': typeof ApiCheckAdminRoute
+  '/api/grant-admin': typeof ApiGrantAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/api/check-admin': typeof ApiCheckAdminRoute
+  '/api/grant-admin': typeof ApiGrantAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/admin/audit-log': typeof AdminAuditLogRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/api/check-admin': typeof ApiCheckAdminRoute
+  '/api/grant-admin': typeof ApiGrantAdminRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/orders'
     | '/api/check-admin'
+    | '/api/grant-admin'
     | '/auth/callback'
     | '/product/$slug'
     | '/admin/'
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/orders'
     | '/api/check-admin'
+    | '/api/grant-admin'
     | '/auth/callback'
     | '/product/$slug'
     | '/admin'
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/admin/audit-log'
     | '/admin/orders'
     | '/api/check-admin'
+    | '/api/grant-admin'
     | '/auth/callback'
     | '/product/$slug'
     | '/admin/'
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   AdminAuditLogRoute: typeof AdminAuditLogRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   ApiCheckAdminRoute: typeof ApiCheckAdminRoute
+  ApiGrantAdminRoute: typeof ApiGrantAdminRoute
   ProductSlugRoute: typeof ProductSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -426,6 +439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCheckAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/grant-admin': {
+      id: '/api/grant-admin'
+      path: '/api/grant-admin'
+      fullPath: '/api/grant-admin'
+      preLoaderRoute: typeof ApiGrantAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/callback'
@@ -485,6 +505,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAuditLogRoute: AdminAuditLogRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   ApiCheckAdminRoute: ApiCheckAdminRoute,
+  ApiGrantAdminRoute: ApiGrantAdminRoute,
   ProductSlugRoute: ProductSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,

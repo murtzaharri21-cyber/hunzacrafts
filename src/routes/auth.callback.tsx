@@ -61,6 +61,24 @@ function Callback() {
           return;
         }
 
+        // Ensure allowed admin emails get a server-side role entry so admin appears after signup/signin.
+        try {
+          if (data.user.email) {
+            // Call trusted server endpoint which will only grant if the email is present in VITE_ADMIN_EMAILS or ADMIN_EMAILS
+            try {
+              await fetch('/api/grant-admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: data.user.id, email: data.user.email }),
+              });
+            } catch (e) {
+              // ignore grant failures and continue to checks below
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+
         // Verify admin access (admin roles are assigned server-side only).
         // Try RPC first
         try {
