@@ -67,6 +67,12 @@ export function Header() {
               </Link>
               <button
                 onClick={async () => {
+                  const isDemoMode = !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+                  if (isDemoMode) {
+                    window.localStorage.removeItem("hunza-demo-admin");
+                    window.location.replace("/");
+                    return;
+                  }
                   const { supabase } = await import("@/integrations/supabase/client");
                   await supabase.auth.signOut();
                   window.location.replace("/");

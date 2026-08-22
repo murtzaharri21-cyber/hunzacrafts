@@ -55,6 +55,19 @@ function resolveSupabasePublishableKey(): string | undefined {
 const RESOLVED_SUPABASE_URL = resolveSupabaseUrl();
 const RESOLVED_SUPABASE_PUBLISHABLE_KEY = resolveSupabasePublishableKey();
 
+function hasPlaceholderSupabaseValue(value: string | undefined): boolean {
+  if (!value) return true;
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.includes('your-project-id') ||
+    normalized.includes('your-publishable-key') ||
+    normalized.includes('placeholder-key') ||
+    normalized.includes('placeholder.supabase.co') ||
+    normalized.includes('example.com') ||
+    normalized.includes('replace-me')
+  );
+}
+
 export const supabaseConfig = {
   url: RESOLVED_SUPABASE_URL,
   hasUrl: Boolean(RESOLVED_SUPABASE_URL),
@@ -62,7 +75,10 @@ export const supabaseConfig = {
 };
 
 export const isSupabaseConfigured = Boolean(
-  RESOLVED_SUPABASE_URL && RESOLVED_SUPABASE_PUBLISHABLE_KEY
+  RESOLVED_SUPABASE_URL &&
+    RESOLVED_SUPABASE_PUBLISHABLE_KEY &&
+    !hasPlaceholderSupabaseValue(RESOLVED_SUPABASE_URL) &&
+    !hasPlaceholderSupabaseValue(RESOLVED_SUPABASE_PUBLISHABLE_KEY)
 );
 
 function createSupabaseClient() {

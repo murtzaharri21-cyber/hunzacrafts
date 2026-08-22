@@ -4,11 +4,17 @@ import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 
 type Search = { next?: string };
+const DEMO_ADMIN_KEY = "hunza-demo-admin";
 
 function safeNext(next: string | undefined): string {
   if (!next) return "/";
   if (!next.startsWith("/") || next.startsWith("//")) return "/";
   return next;
+}
+
+function isLocalDemoAdminEnabled() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(DEMO_ADMIN_KEY) === "true";
 }
 
 export const Route = createFileRoute("/auth")({
@@ -57,7 +63,12 @@ function AuthPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured) {
+      if (isLocalDemoAdminEnabled()) {
+        window.location.replace(target);
+      }
+      return;
+    }
     let active = true;
     supabase.auth
       .getUser()
@@ -78,6 +89,15 @@ function AuthPage() {
     setError(null);
     setBusy(true);
     try {
+      if (!isSupabaseConfigured) {
+        if (email.trim().length > 0 && password.trim().length >= 8) {
+          window.localStorage.setItem(DEMO_ADMIN_KEY, "true");
+          navigate({ to: target });
+          return;
+        }
+        setError("Enter a valid email and password to continue in demo admin mode.");
+        return;
+      }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       if (!(await ensureAdmin())) {
@@ -95,6 +115,11 @@ function AuthPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function onDemoAdmin() {
+    window.localStorage.setItem(DEMO_ADMIN_KEY, "true");
+    navigate({ to: target });
   }
 
   async function onGoogle() {
@@ -132,28 +157,50 @@ function AuthPage() {
         <div className="max-w-md rounded-3xl border border-border p-6 md:p-8">
           {!isSupabaseConfigured && (
             <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
-              <strong className="block font-medium mb-1">⚙️ Supabase Configuration Required</strong>
-              To enable admin login on Vercel, add these Environment Variables in your Vercel Project Settings:
+              <strong className="block font-medium mb-1">⚙️ Local demo admin mode</strong>
+              Supabase is not configured, so this local build is running in developer mode.
               <ul className="mt-2 list-disc list-inside space-y-1 font-mono text-[11px]">
-                <li>VITE_SUPABASE_URL</li>
-                <li>VITE_SUPABASE_PUBLISHABLE_KEY</li>
+                <li>Use the demo admin button below to access the admin dashboard locally.</li>
+                <li>For production, add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.</li>
               </ul>
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={onGoogle}
-            className="w-full rounded-full border border-border bg-background py-3 text-sm font-medium hover:bg-muted"
-          >
-            Continue with Google
-          </button>
+          {!isSupabaseConfigured && (
+            <button
+              type="button"
+              onClick={onDemoAdmin}
+              className="w-full rounded-full bg-foreground py-3 text-sm font-medium text-background hover:bg-foreground/90"
+            >
+              Continue in demo admin mode
+            </button>
+          )}
 
-          <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            or
-            <span className="h-px flex-1 bg-border" />
-          </div>
+          {isSupabaseConfigured && (
+            <button
+              type="button"
+              onClick={onGoogle}
+              className="w-full rounded-full border border-border bg-background py-3 text-sm font-medium hover:bg-muted"
+            >
+              Continue with Google
+            </button>
+          )}
+
+          {isSupabaseConfigured && (
+            <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              or
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          )}
+
+          {!isSupabaseConfigured && (
+            <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">
+              <span className="h-px flex-1 bg-border" />
+              demo sign-in
+              <span className="h-px flex-1 bg-border" />
+            </div>
+          )}
 
           <form onSubmit={onSubmit}>
             <label className="block">

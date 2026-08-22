@@ -61,6 +61,12 @@ const REMOTE_KEYS = {
   custom: "admin-custom-products",
   edits: "admin-product-edits",
 };
+const DEMO_ADMIN_KEY = "hunza-demo-admin";
+
+function isLocalDemoAdminEnabled() {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(DEMO_ADMIN_KEY) === "true";
+}
 
 async function loadRemoteAdminState<T>(remoteKey: string): Promise<T | null> {
   try {
@@ -102,8 +108,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
   const [customProducts, setCustomProducts] = useState<Product[]>([]);
   const [edits, setEdits] = useState<Record<string, ProductEdit>>({});
-  // Default to not-admin. Admin access must be granted via Supabase role checks.
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => !isSupabaseConfigured && isLocalDemoAdminEnabled());
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -126,14 +131,17 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     void refreshFromSupabase();
 
+    if (!isSupabaseConfigured) {
+      setIsAdmin(isLocalDemoAdminEnabled());
+      return () => {
+        active = false;
+      };
+    }
+
     import("@/integrations/supabase/client")
       .then(({ supabase }) => {
         const resolveRole = async () => {
           try {
-            if (!isSupabaseConfigured) {
-              setIsAdmin(false);
-              return;
-            }
             const { data, error } = await supabase.auth.getUser();
             if (error || !data?.user) {
               setIsAdmin(false);
