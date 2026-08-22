@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
 (async () => {
-  const base = 'https://hunzacrafts-bt536lfvi-harry-e06c.vercel.app';
+  const base = 'https://hunzacrafts-12lzuw2od-harry-e06c.vercel.app';
   const browser = await chromium.launch({ headless: true });
   const result = {};
   try {
