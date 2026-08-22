@@ -1,5 +1,0 @@
-feat(admin): add server /api/check-admin endpoint using supabaseAdmin to verify roles
-
-Server endpoint returns { isAdmin: boolean } for a given user_id and uses the service_role key via supabaseAdmin. This helps reliably validate admin assignments from server-side code without exposing the service role to the client.
-
-Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
