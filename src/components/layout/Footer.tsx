@@ -124,9 +124,19 @@ export function Footer() {
           <div>© {new Date().getFullYear()} Hunza & Co. All rights reserved.</div>
           <div className="flex items-center gap-4">
             <span>Handcrafted with care in the Karakoram.</span>
-            <Link to="/auth" className="underline hover:text-foreground">
+            <button
+              onClick={() => {
+                try {
+                  // Set a short-lived allow-cookie for admin entry
+                  document.cookie = 'hunza_allow_admin=1; path=/; max-age=' + 60 * 5; // 5 minutes
+                } catch {}
+                // Redirect to auth flow which will validate admin and then send to /admin
+                window.location.href = '/auth?next=' + encodeURIComponent('/admin');
+              }}
+              className="underline hover:text-foreground"
+            >
               Admin
-            </Link>
+            </button>
           </div>
         </div>
       </div>

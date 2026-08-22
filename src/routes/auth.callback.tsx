@@ -70,6 +70,10 @@ function Callback() {
             _role: 'admin',
           });
           if (!rpcError && ok === true) {
+            try {
+              // Clear the allow cookie after successful admin validation so subsequent direct visits are blocked
+              if (typeof document !== 'undefined') document.cookie = 'hunza_allow_admin=; path=/; max-age=0';
+            } catch (e) {}
             navigate({ to: target });
             return;
           }
@@ -82,6 +86,9 @@ function Callback() {
           const sb = supabase as any;
           const { data: roles, error: rolesErr } = await sb.from('user_roles').select('role').eq('user_id', data.user.id);
           if (!rolesErr && Array.isArray(roles) && roles.some((r: any) => String(r.role) === 'admin')) {
+            try {
+              if (typeof document !== 'undefined') document.cookie = 'hunza_allow_admin=; path=/; max-age=0';
+            } catch (e) {}
             navigate({ to: target });
             return;
           }
@@ -92,6 +99,9 @@ function Callback() {
         // Fallback to email list
         const emails = readAdminEmails();
         if (emails.length > 0 && data.user.email && emails.includes(data.user.email.toLowerCase())) {
+          try {
+            if (typeof document !== 'undefined') document.cookie = 'hunza_allow_admin=; path=/; max-age=0';
+          } catch (e) {}
           navigate({ to: target });
           return;
         }

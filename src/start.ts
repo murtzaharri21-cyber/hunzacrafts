@@ -48,6 +48,20 @@ const adminRedirectMiddleware = createMiddleware().server(async (ctx: any) => {
         }
       }
 
+      // Enforce that /admin can only be accessed after visiting the storefront's Admin entry point.
+      // This uses a short-lived cookie 'hunza_allow_admin' to ensure users come from the storefront flow.
+      try {
+        const cookieHeader = req.headers.get('cookie') || '';
+        const allowed = /(^|;\s*)hunza_allow_admin=1($|;)/.test(cookieHeader);
+        if (!allowed) {
+          // Redirect to storefront home where the Admin entry point lives
+          return Response.redirect('/', 302);
+        }
+      } catch (e) {
+        // If cookie parsing fails, block direct admin access
+        return Response.redirect('/', 302);
+      }
+
       return new Response("Not Found", {
         status: 404,
         headers: { "content-type": "text/plain; charset=utf-8" },

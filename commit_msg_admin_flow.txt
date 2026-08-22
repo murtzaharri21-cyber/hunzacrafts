@@ -1,0 +1,5 @@
+fix(admin-flow): require storefront entry before /admin access
+
+Prevent direct access to the admin area by requiring a short-lived 'hunza_allow_admin' cookie set from the storefront. Middleware blocks /admin requests without the allow cookie when served on the same origin. Footer Admin link sets the cookie and redirects to /auth?next=/admin. Auth callback clears the cookie after successful admin validation. This enforces 'visit storefront first, then sign in as admin' flow while preserving server-side admin checks.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
