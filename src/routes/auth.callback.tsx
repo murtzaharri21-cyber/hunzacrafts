@@ -105,6 +105,27 @@ function Callback() {
           return;
         }
 
+        // Server-side check fallback: call trusted server endpoint which uses the service role key
+        try {
+          const resp = await fetch('/api/check-admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: data.user.id }),
+          });
+          if (resp.ok) {
+            const json = await resp.json();
+            if (json && json.isAdmin === true) {
+              try {
+                if (typeof document !== 'undefined') document.cookie = 'hunza_allow_admin=; path=/; max-age=0';
+              } catch (e) {}
+              navigate({ to: target });
+              return;
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+
         await supabase.auth.signOut().catch(() => {});
         navigate({ to: '/auth', search: { next: target } });
       } catch (err) {

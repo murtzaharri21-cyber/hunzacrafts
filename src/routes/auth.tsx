@@ -76,6 +76,21 @@ async function ensureAdmin(): Promise<boolean> {
       return true;
     }
 
+    // Server-side check fallback: call trusted server endpoint which uses the service role key
+    try {
+      const resp = await fetch('/api/check-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id }),
+      });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json && json.isAdmin === true) return true;
+      }
+    } catch (e) {
+      // ignore server-check errors and continue to sign out
+    }
+
     // Final fallback: sign out the user and deny access
     await supabase.auth.signOut().catch(() => {});
     return false;
