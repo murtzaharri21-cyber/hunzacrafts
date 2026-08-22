@@ -1,0 +1,5 @@
+fix(admin-ui): ensure allow-cookie is written before navigating to auth
+
+Set hunza_allow_admin cookie and use a short delay + location.assign to ensure the cookie persists before redirecting to /auth?next=/admin.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
